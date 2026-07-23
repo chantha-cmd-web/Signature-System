@@ -37,7 +37,7 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
   // Form states
   const [documentName, setDocumentName] = useState("");
   const [category, setCategory] = useState("Immigration / Visa");
-  const [department, setDepartment] = useState("HR");
+  const [department, setDepartment] = useState("Operations");
   const [recordDate, setRecordDate] = useState(new Date().toISOString().split("T")[0]);
   const [status, setStatus] = useState<"Signed & Completed" | "Pending Review" | "Draft">("Signed & Completed");
   const [storageLocation, setStorageLocation] = useState("Google Drive - Secure HR");
@@ -68,12 +68,9 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
   ];
 
   const departmentsList = [
-    "HR",
-    "Legal",
-    "Finance",
     "Operations",
-    "Government",
-    "General",
+    "Finance",
+    "Academics",
   ];
 
   const storagePresets = [
@@ -295,7 +292,7 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
       // Auto-populate form
       setDocumentName(data.documentName || "");
       setCategory(data.category || "General");
-      setDepartment(data.department || "General");
+      setDepartment(data.department || "Operations");
       setRecordDate(data.recordDate || new Date().toISOString().split("T")[0]);
       setStatus(data.status || "Signed & Completed");
       setRemarks(data.remarks || "");
@@ -310,7 +307,7 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
   const resetForm = () => {
     setDocumentName("");
     setCategory("Immigration / Visa");
-    setDepartment("HR");
+    setDepartment("Operations");
     setRecordDate(new Date().toISOString().split("T")[0]);
     setStatus("Signed & Completed");
     setStorageLocation("Google Drive - Secure HR");
@@ -386,13 +383,13 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex border-b border-border bg-card/40 rounded-t-xl p-1 pb-0 gap-1">
+      <div className="flex border-b border-border/45 bg-slate-100/50 dark:bg-slate-900/40 rounded-t-2xl p-1.5 pb-0 gap-1.5">
         <button
           onClick={() => setActiveTab("voice")}
-          className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 ${
+          className={`px-4.5 py-2.5 text-xs font-bold rounded-t-xl transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
             activeTab === "voice"
-              ? "bg-background border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "bg-white/80 dark:bg-slate-910/80 border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-slate-900/30"
           }`}
         >
           <Mic className="h-3.5 w-3.5" />
@@ -400,10 +397,10 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab("manual")}
-          className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 ${
+          className={`px-4.5 py-2.5 text-xs font-bold rounded-t-xl transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
             activeTab === "manual"
-              ? "bg-background border-primary text-primary"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              ? "bg-white/80 dark:bg-slate-910/80 border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-slate-900/30"
           }`}
         >
           <Database className="h-3.5 w-3.5" />
@@ -412,7 +409,7 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
       </div>
 
       {/* Main Container Area */}
-      <div className="bg-card border border-border rounded-b-xl p-5 shadow-xs">
+      <div className="glass-panel rounded-b-2xl p-6">
         <AnimatePresence mode="wait">
           {activeTab === "voice" ? (
             <motion.div

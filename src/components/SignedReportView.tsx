@@ -206,16 +206,16 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
   return (
     <div className="space-y-5">
       {/* Search and Filters Header bar */}
-      <div className="bg-card border border-border rounded-xl p-4.5 space-y-3.5 shadow-xs">
+      <div className="glass-panel rounded-2xl p-5 space-y-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-          <h2 className="text-sm font-bold text-foreground flex items-center gap-2 uppercase tracking-wider">
-            <SlidersHorizontal className="h-4 w-4 text-primary" />
+          <h2 className="text-xs font-bold text-foreground flex items-center gap-2 uppercase tracking-widest">
+            <SlidersHorizontal className="h-4 w-4 text-primary animate-pulse" />
             Report Search & Filter Ledger
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <button
               onClick={() => onExportCSV(sortedDocuments)}
-              className="px-3 py-1.5 border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-bold rounded-lg text-xs flex items-center gap-1.5"
+              className="flex-1 md:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
               id="report-export-excel-btn"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" />
@@ -223,7 +223,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
             </button>
             <button
               onClick={handlePrintPDF}
-              className="px-3 py-1.5 border border-primary/20 bg-primary/10 hover:bg-primary/25 text-primary font-bold rounded-lg text-xs flex items-center gap-1.5"
+              className="flex-1 md:flex-none px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
               id="report-export-pdf-btn"
             >
               <FileDown className="h-3.5 w-3.5" />
@@ -236,13 +236,13 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {/* Main text search */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/80" />
             <input
               type="text"
               value={searchTerm}
               onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               placeholder="Search title, remarks..."
-              className="w-full pl-8 pr-3 py-1.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+              className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs focus:outline-none glass-input placeholder:text-muted-foreground/60"
             />
           </div>
 
@@ -250,7 +250,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
           <select
             value={selectedStatus}
             onChange={e => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
-            className="w-full p-1.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+            className="w-full p-2 border rounded-lg text-xs focus:outline-none glass-input"
           >
             <option value="">-- All Statuses --</option>
             <option value="Signed & Completed">Signed & Completed</option>
@@ -262,7 +262,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
           <select
             value={selectedSubmitter}
             onChange={e => { setSelectedSubmitter(e.target.value); setCurrentPage(1); }}
-            className="w-full p-1.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+            className="w-full p-2 border rounded-lg text-xs focus:outline-none glass-input"
           >
             <option value="">-- All Submitters --</option>
             {uniqueSubmitters.map(sub => (
@@ -274,7 +274,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
           <select
             value={selectedCategory}
             onChange={e => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
-            className="w-full p-1.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+            className="w-full p-2 border rounded-lg text-xs focus:outline-none glass-input"
           >
             <option value="">-- All Categories --</option>
             {uniqueCategories.map(cat => (
@@ -284,37 +284,37 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
         </div>
 
         {/* Date Filters Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2.5 border-t border-border/60">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3.5 border-t border-border/30">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase shrink-0">From</span>
+            <span className="text-[10px] font-bold text-muted-foreground/90 uppercase shrink-0">From</span>
             <input
               type="date"
               value={startDate}
               onChange={e => { setStartDate(e.target.value); setCurrentPage(1); }}
-              className="w-full p-1.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+              className="w-full p-2 border rounded-lg text-xs focus:outline-none glass-input"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase shrink-0">To</span>
+            <span className="text-[10px] font-bold text-muted-foreground/90 uppercase shrink-0">To</span>
             <input
               type="date"
               value={endDate}
               onChange={e => { setEndDate(e.target.value); setCurrentPage(1); }}
-              className="w-full p-1.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+              className="w-full p-2 border rounded-lg text-xs focus:outline-none glass-input"
             />
           </div>
 
           <div className="flex justify-end items-center gap-3">
             {/* Show active count */}
-            <span className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-[10px] text-muted-foreground/80 font-mono">
               Filtered: <strong>{sortedDocuments.length}</strong> / {documents.length}
             </span>
 
             {(searchTerm || selectedStatus || selectedSubmitter || selectedCategory || startDate || endDate) && (
               <button
                 onClick={handleClearFilters}
-                className="px-2 py-1 bg-primary/10 text-primary font-bold hover:bg-primary/20 rounded text-[10px] flex items-center gap-1"
+                className="px-2.5 py-1.5 bg-primary/10 text-primary font-bold hover:bg-primary/20 rounded-lg text-[10px] flex items-center gap-1 cursor-pointer transition-all"
               >
                 <X className="h-3 w-3" />
                 Clear
@@ -325,7 +325,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
       </div>
 
       {/* Main Ledger Table */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
+      <div className="glass-panel rounded-2xl overflow-hidden border border-border/40">
         <div className="overflow-x-auto w-full">
           <table className="w-full border-collapse text-left" id="print-section-report">
             <thead>

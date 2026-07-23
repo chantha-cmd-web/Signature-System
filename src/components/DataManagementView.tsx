@@ -260,7 +260,7 @@ export const DataManagementView: React.FC<DataManagementViewProps> = ({
             const tempDoc: Partial<DocumentRecord> = {
               documentName: cols[nameIdx !== -1 ? nameIdx : 0] || "Imported Document",
               category: cols[categoryIdx !== -1 ? categoryIdx : 1] || "General",
-              department: cols[departmentIdx !== -1 ? departmentIdx : 2] || "General",
+              department: cols[departmentIdx !== -1 ? departmentIdx : 2] || "Operations",
               status: (cols[statusIdx !== -1 ? statusIdx : 3] as any) || "Signed & Completed",
               recordDate: cols[dateIdx !== -1 ? dateIdx : 4] || new Date().toISOString().split("T")[0],
               storageLocation: cols[locationIdx !== -1 ? locationIdx : 5] || "Google Drive",

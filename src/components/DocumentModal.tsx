@@ -38,7 +38,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
   // Form states
   const [documentName, setDocumentName] = useState("");
   const [category, setCategory] = useState("Immigration / Visa");
-  const [department, setDepartment] = useState("HR");
+  const [department, setDepartment] = useState("Operations");
   const [recordDate, setRecordDate] = useState("");
   const [status, setStatus] = useState<"Signed & Completed" | "Pending Review" | "Draft">("Signed & Completed");
   const [storageLocation, setStorageLocation] = useState("Google Drive");
@@ -69,12 +69,9 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
 
   // Departments list
   const departmentsList = [
-    "HR",
-    "Legal",
-    "Finance",
     "Operations",
-    "Government",
-    "General",
+    "Finance",
+    "Academics",
   ];
 
   // Storage locations presets
@@ -124,7 +121,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
       // reset form for new creation
       setDocumentName("");
       setCategory("Immigration / Visa");
-      setDepartment("HR");
+      setDepartment("Operations");
       setRecordDate(new Date().toISOString().split("T")[0]);
       setStatus("Signed & Completed");
       setStorageLocation("Google Drive");
@@ -257,7 +254,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
       // Instantly map fields for the manual tab as a draft
       setDocumentName(data.documentName || "");
       setCategory(data.category || "General");
-      setDepartment(data.department || "General");
+      setDepartment(data.department || "Operations");
       setRecordDate(data.recordDate || new Date().toISOString().split("T")[0]);
       setStatus(data.status || "Signed & Completed");
       setRemarks(data.remarks || "");
@@ -301,7 +298,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
     const payload: Partial<DocumentRecord> = {
       documentName: aiParsedPreview.documentName || "Voice Note",
       category: aiParsedPreview.category || "General",
-      department: aiParsedPreview.department || "General",
+      department: aiParsedPreview.department || "Operations",
       recordDate: aiParsedPreview.recordDate || new Date().toISOString().split("T")[0],
       status: aiParsedPreview.status || "Signed & Completed",
       storageLocation: storageLocation || "Google Drive",

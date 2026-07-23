@@ -25,9 +25,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
       value: totalDocs,
       description: "Registered in digital ledger",
       icon: FileText,
-      bgColor: "bg-indigo-500/10 dark:bg-indigo-950/20",
+      bgColor: "bg-indigo-500/10 dark:bg-indigo-400/10",
       iconColor: "text-indigo-600 dark:text-indigo-400",
-      borderColor: "border-indigo-500/15",
+      accentBorder: "border-indigo-500/20 dark:border-indigo-400/20",
     },
     {
       id: "completed",
@@ -35,9 +35,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
       value: completedDocs,
       description: "Successfully processed & archived",
       icon: CheckCircle2,
-      bgColor: "bg-emerald-500/10 dark:bg-emerald-950/20",
+      bgColor: "bg-emerald-500/10 dark:bg-emerald-400/10",
       iconColor: "text-emerald-600 dark:text-emerald-400",
-      borderColor: "border-emerald-500/15",
+      accentBorder: "border-emerald-500/20 dark:border-emerald-400/20",
     },
     {
       id: "pending",
@@ -45,9 +45,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
       value: pendingDocs,
       description: "Awaiting legal reviewer check",
       icon: Clock,
-      bgColor: "bg-amber-500/10 dark:bg-amber-950/20",
+      bgColor: "bg-amber-500/10 dark:bg-amber-400/10",
       iconColor: "text-amber-600 dark:text-amber-400",
-      borderColor: "border-amber-500/15",
+      accentBorder: "border-amber-500/20 dark:border-amber-400/20",
     },
     {
       id: "drafts",
@@ -55,9 +55,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
       value: draftDocs,
       description: "In preparation state",
       icon: FileEdit,
-      bgColor: "bg-blue-500/10 dark:bg-blue-950/20",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      borderColor: "border-blue-500/15",
+      bgColor: "bg-sky-500/10 dark:bg-sky-400/10",
+      iconColor: "text-sky-600 dark:text-sky-400",
+      accentBorder: "border-sky-500/20 dark:border-sky-400/20",
     },
   ];
 
@@ -68,27 +68,29 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
         return (
           <motion.div
             key={item.id}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: idx * 0.05 }}
-            className={`p-5 rounded-xl border bg-card text-card-foreground shadow-xs flex flex-col justify-between hover:shadow-md transition-all duration-200 ${item.borderColor}`}
+            transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className={`glass-card p-5 rounded-2xl border ${item.accentBorder} flex flex-col justify-between`}
           >
             <div className="flex justify-between items-start">
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold tracking-wider uppercase text-muted-foreground block">
+              <div className="space-y-2">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground/85 block">
                   {item.label}
                 </span>
                 <span className="text-3xl font-extrabold tracking-tight font-mono text-foreground block">
                   {item.value}
                 </span>
               </div>
-              <div className={`p-2.5 rounded-lg shrink-0 ${item.bgColor} ${item.iconColor}`}>
-                <IconComponent className="h-5 w-5" />
+              <div className={`p-2.5 rounded-xl shrink-0 ${item.bgColor} ${item.iconColor} transition-transform duration-300 hover:scale-110`}>
+                <IconComponent className="h-5 w-5" strokeWidth={2} />
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-4 leading-normal">
-              {item.description}
-            </p>
+            <div className="mt-4 pt-3 border-t border-border/20">
+              <p className="text-[11px] text-muted-foreground/80 leading-normal font-medium">
+                {item.description}
+              </p>
+            </div>
           </motion.div>
         );
       })}

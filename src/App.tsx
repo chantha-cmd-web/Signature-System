@@ -145,7 +145,7 @@ export default function App() {
             documentName: "Visa Extension - Employee Renewal",
             recordDate: "2026-07-21",
             category: "Immigration / Visa",
-            department: "HR",
+            department: "Academics",
             status: "Signed & Completed",
             storageLocation: "Google Drive - HR Folder",
             remarks: "Employee visa extension renewal document signed and uploaded for immigration processing.",
@@ -193,7 +193,7 @@ export default function App() {
             documentName: "Software Consulting Service Agreement",
             recordDate: "2026-05-10",
             category: "Contract",
-            department: "Legal",
+            department: "Operations",
             status: "Signed & Completed",
             storageLocation: "OneDrive - Contracts",
             remarks: "Service agreement with DevFlow Inc. for outsourcing backend infrastructure modernization.",
@@ -235,7 +235,7 @@ export default function App() {
             documentName: "NDAs for Product Team Onboarding",
             recordDate: "2026-07-01",
             category: "Legal",
-            department: "HR",
+            department: "Academics",
             status: "Pending Review",
             storageLocation: "Local Storage - Pending Sync",
             remarks: "Draft non-disclosure agreements prepared for the upcoming July engineering batch.",
@@ -669,7 +669,7 @@ export default function App() {
           documentName: "Visa Extension - Employee Renewal",
           recordDate: "2026-07-21",
           category: "Immigration / Visa",
-          department: "HR",
+          department: "Academics",
           status: "Signed & Completed",
           storageLocation: "Google Drive - HR Folder",
           remarks: "Employee visa extension renewal document signed and uploaded for immigration processing.",
@@ -717,7 +717,7 @@ export default function App() {
           documentName: "Software Consulting Service Agreement",
           recordDate: "2026-05-10",
           category: "Contract",
-          department: "Legal",
+          department: "Operations",
           status: "Signed & Completed",
           storageLocation: "OneDrive - Contracts",
           remarks: "Service agreement with DevFlow Inc. for outsourcing backend infrastructure modernization.",
@@ -759,7 +759,7 @@ export default function App() {
           documentName: "NDAs for Product Team Onboarding",
           recordDate: "2026-07-01",
           category: "Legal",
-          department: "HR",
+          department: "Academics",
           status: "Pending Review",
           storageLocation: "Local Storage - Pending Sync",
           remarks: "Draft non-disclosure agreements prepared for the upcoming July engineering batch.",
@@ -1313,10 +1313,10 @@ export default function App() {
             )}
 
             {/* Simple Dashboard Controls: Search, Export JSON, Export CSV */}
-            <div className="bg-card border rounded-xl p-5 shadow-xs space-y-4">
+            <div className="glass-panel rounded-2xl p-6 space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-1.5">
                     <span className="w-1.5 h-3 bg-primary rounded-full shrink-0" />
                     Search & Operations Console
                   </h3>
@@ -1352,13 +1352,13 @@ export default function App() {
 
               {/* The Search input */}
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search documents by title, employee name, document number, storage location, or remarks..."
-                  className="w-full pl-10 pr-4 py-2.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none placeholder:text-muted-foreground/60 shadow-inner"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg text-foreground text-xs focus:outline-none glass-input placeholder:text-muted-foreground/60 shadow-xs"
                   id="search-input"
                 />
               </div>
@@ -1381,7 +1381,7 @@ export default function App() {
             </div>
 
             {/* Signed Reports Digital Ledger */}
-            <main className="bg-card border rounded-xl shadow-xs overflow-hidden">
+            <main className="glass-panel rounded-2xl shadow-xs overflow-hidden">
               <div className="px-5 py-4 border-b border-border/60 bg-accent/5 flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">

@@ -27,7 +27,7 @@ const initialDocuments = [
     documentName: "Visa Extension - Employee Renewal",
     recordDate: "2026-07-21",
     category: "Immigration / Visa",
-    department: "HR",
+    department: "Academics",
     status: "Signed & Completed",
     storageLocation: "Google Drive - HR Folder",
     remarks: "Employee visa extension renewal document signed and uploaded for immigration processing.",
@@ -75,7 +75,7 @@ const initialDocuments = [
     documentName: "Software Consulting Service Agreement",
     recordDate: "2026-05-10",
     category: "Contract",
-    department: "Legal",
+    department: "Operations",
     status: "Signed & Completed",
     storageLocation: "OneDrive - Contracts",
     remarks: "Service agreement with DevFlow Inc. for outsourcing backend infrastructure modernization.",
@@ -117,7 +117,7 @@ const initialDocuments = [
     documentName: "NDAs for Product Team Onboarding",
     recordDate: "2026-07-01",
     category: "Legal",
-    department: "HR",
+    department: "Academics",
     status: "Pending Review",
     storageLocation: "Local Storage - Pending Sync",
     remarks: "Draft non-disclosure agreements prepared for the upcoming July engineering batch.",
@@ -176,7 +176,7 @@ app.post("/api/documents", (req, res) => {
     documentName: req.body.documentName || "Untitled Document",
     recordDate: req.body.recordDate || new Date().toISOString().split("T")[0],
     category: req.body.category || "General",
-    department: req.body.department || "General",
+    department: req.body.department || "Operations",
     status: req.body.status || "Signed & Completed",
     storageLocation: req.body.storageLocation || "Google Drive",
     remarks: req.body.remarks || "",
@@ -311,7 +311,7 @@ Extract the following:
 1. documentName: Short, official-sounding name or title for the document. Keep it professional.
 2. category: Primary document category (e.g. 'Immigration', 'Legal', 'Finance', 'HR', 'Contract', 'Real Estate', 'Personal'). If not clear, choose the best fit or 'General'.
 3. recordDate: YYYY-MM-DD date. If a date is mentioned (e.g. "July 21, 2026" or "on the 15th of last month"), translate it to YYYY-MM-DD format based on today's date ${currentDateStr}. If no date is mentioned, default to the date mentioned or today's date ${currentDateStr}.
-4. department: HR, Legal, Finance, Operations, Government, or General. Choose based on context.
+4. department: Operations, Finance, or Academics. Choose based on context.
 5. status: Document signature status. Usually 'Signed & Completed' unless implied as a 'Draft' or 'Pending Review'.
 6. remarks: Concise summary or notes about the document, such as its purpose, who it's for, etc.
 
@@ -329,7 +329,7 @@ Return the parsed result matching the required JSON schema strictly.
             documentName: { type: Type.STRING, description: "Professional name or title of the document" },
             category: { type: Type.STRING, description: "Category of document, e.g. Immigration, Legal, HR, Finance, Contract, etc." },
             recordDate: { type: Type.STRING, description: "YYYY-MM-DD date of signature or record" },
-            department: { type: Type.STRING, description: "Department: HR, Legal, Finance, Operations, Government, General" },
+            department: { type: Type.STRING, description: "Department: Operations, Finance, Academics" },
             status: { type: Type.STRING, description: "Signed & Completed, Pending Review, Draft" },
             remarks: { type: Type.STRING, description: "Summary or additional context extracted from the voice statement" }
           },
@@ -364,7 +364,7 @@ function simulateParsing(transcript: string, localDate?: string) {
   
   let documentName = "Voice Note Record";
   let category = "General";
-  let department = "General";
+  let department = "Operations";
   let status = "Signed & Completed";
   let recordDate = today;
   let remarks = transcript;
@@ -372,7 +372,7 @@ function simulateParsing(transcript: string, localDate?: string) {
   // Inference logic
   if (text.includes("visa") || text.includes("extension") || text.includes("passport") || text.includes("immigration")) {
     category = "Immigration / Visa";
-    department = "HR";
+    department = "Academics";
     documentName = "Visa Extension Document";
   } else if (text.includes("lease") || text.includes("rent") || text.includes("apartment") || text.includes("office")) {
     category = "Real Estate";
@@ -380,7 +380,7 @@ function simulateParsing(transcript: string, localDate?: string) {
     documentName = "Lease Agreement";
   } else if (text.includes("contract") || text.includes("nda") || text.includes("agreement") || text.includes("consulting")) {
     category = "Contract";
-    department = "Legal";
+    department = "Academics";
     documentName = "Consulting & Service Agreement";
   } else if (text.includes("financial") || text.includes("tax") || text.includes("billing") || text.includes("audit") || text.includes("salary")) {
     category = "Finance";
@@ -388,7 +388,7 @@ function simulateParsing(transcript: string, localDate?: string) {
     documentName = "Financial Document";
   } else if (text.includes("onboarding") || text.includes("employee") || text.includes("hire") || text.includes("recruit")) {
     category = "HR";
-    department = "HR";
+    department = "Academics";
     documentName = "Employee Record Document";
   }
 
