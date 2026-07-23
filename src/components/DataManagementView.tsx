@@ -240,8 +240,21 @@ export const DataManagementView: React.FC<DataManagementViewProps> = ({
           if (!line) continue;
 
           // Split columns while taking quotes into account
-          const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
-          const cols = matches.map(c => c.trim().replace(/^"|"$/g, ""));
+          const cols: string[] = [];
+          let current = "";
+          let inQuotes = false;
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              cols.push(current.trim().replace(/^"|"$/g, ""));
+              current = "";
+            } else {
+              current += char;
+            }
+          }
+          cols.push(current.trim().replace(/^"|"$/g, ""));
 
           if (cols.length > 0 && cols[nameIdx !== -1 ? nameIdx : 0]) {
             const tempDoc: Partial<DocumentRecord> = {

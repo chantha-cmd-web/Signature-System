@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { DocumentRecord, Theme } from "./types";
 import { DashboardStats } from "./components/DashboardStats";
-import { DocumentCard } from "./components/DocumentCard";
 import { DocumentModal } from "./components/DocumentModal";
 import { DocumentPreviewModal } from "./components/DocumentPreviewModal";
 import { AddSignedDocumentView } from "./components/AddSignedDocumentView";
@@ -131,9 +130,132 @@ export default function App() {
       }
       const data = await response.json();
       setDocuments(data);
+      localStorage.setItem("signature-documents", JSON.stringify(data));
+      setError("");
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "An error occurred while loading records.");
+      console.warn("Express server not available, falling back to local storage:", err);
+      const localDataStr = localStorage.getItem("signature-documents");
+      if (localDataStr) {
+        setDocuments(JSON.parse(localDataStr));
+        setError("");
+      } else {
+        const seedData = [
+          {
+            id: "doc-1",
+            documentName: "Visa Extension - Employee Renewal",
+            recordDate: "2026-07-21",
+            category: "Immigration / Visa",
+            department: "HR",
+            status: "Signed & Completed",
+            storageLocation: "Google Drive - HR Folder",
+            remarks: "Employee visa extension renewal document signed and uploaded for immigration processing.",
+            createdBy: "westernassenmenttest@gmail.com",
+            createdAt: "2026-07-21T00:00:00.000Z",
+            updatedAt: "2026-07-21T00:00:00.000Z",
+            auditLog: [
+              {
+                timestamp: "2026-07-21T00:00:00.000Z",
+                action: "Created",
+                changes: "Initial record created via Voice Input",
+                user: "westernassenmenttest@gmail.com"
+              }
+            ]
+          },
+          {
+            id: "doc-2",
+            documentName: "Office Lease Agreement - Sector 4",
+            recordDate: "2026-06-15",
+            category: "Real Estate",
+            department: "Operations",
+            status: "Signed & Completed",
+            storageLocation: "Physical File Cab - Drawer B",
+            remarks: "Signed the 2-year renewal agreement for the main office floor. Monthly rent remains locked.",
+            createdBy: "westernassenmenttest@gmail.com",
+            createdAt: "2026-06-15T14:30:00.000Z",
+            updatedAt: "2026-06-16T09:15:00.000Z",
+            auditLog: [
+              {
+                timestamp: "2026-06-15T14:30:00.000Z",
+                action: "Created",
+                changes: "Initial record created",
+                user: "westernassenmenttest@gmail.com"
+              },
+              {
+                timestamp: "2026-06-16T09:15:00.000Z",
+                action: "Updated",
+                changes: "Changed storage location from 'Pending Scan' to 'Physical File Cab - Drawer B'",
+                user: "westernassenmenttest@gmail.com"
+              }
+            ]
+          },
+          {
+            id: "doc-3",
+            documentName: "Software Consulting Service Agreement",
+            recordDate: "2026-05-10",
+            category: "Contract",
+            department: "Legal",
+            status: "Signed & Completed",
+            storageLocation: "OneDrive - Contracts",
+            remarks: "Service agreement with DevFlow Inc. for outsourcing backend infrastructure modernization.",
+            createdBy: "westernassenmenttest@gmail.com",
+            createdAt: "2026-05-10T10:00:00.000Z",
+            updatedAt: "2026-05-10T10:00:00.000Z",
+            auditLog: [
+              {
+                timestamp: "2026-05-10T10:00:00.000Z",
+                action: "Created",
+                changes: "Initial record created",
+                user: "westernassenmenttest@gmail.com"
+              }
+            ]
+          },
+          {
+            id: "doc-4",
+            documentName: "Q2 Financial Statement Approval",
+            recordDate: "2026-07-10",
+            category: "Finance",
+            department: "Finance",
+            status: "Signed & Completed",
+            storageLocation: "Google Drive - Finance Secure",
+            remarks: "Board-approved financial statement summarizing the Q2 profits and expenditure.",
+            createdBy: "westernassenmenttest@gmail.com",
+            createdAt: "2026-07-10T16:45:00.000Z",
+            updatedAt: "2026-07-10T16:45:00.000Z",
+            auditLog: [
+              {
+                timestamp: "2026-07-10T16:45:00.000Z",
+                action: "Created",
+                changes: "Initial record created",
+                user: "westernassenmenttest@gmail.com"
+              }
+            ]
+          },
+          {
+            id: "doc-5",
+            documentName: "NDAs for Product Team Onboarding",
+            recordDate: "2026-07-01",
+            category: "Legal",
+            department: "HR",
+            status: "Pending Review",
+            storageLocation: "Local Storage - Pending Sync",
+            remarks: "Draft non-disclosure agreements prepared for the upcoming July engineering batch.",
+            createdBy: "westernassenmenttest@gmail.com",
+            createdAt: "2026-07-01T09:00:00.000Z",
+            updatedAt: "2026-07-01T09:00:00.000Z",
+            auditLog: [
+              {
+                timestamp: "2026-07-01T09:00:00.000Z",
+                action: "Created",
+                changes: "Initial record created",
+                user: "westernassenmenttest@gmail.com"
+              }
+            ]
+          }
+        ];
+        setDocuments(seedData);
+        localStorage.setItem("signature-documents", JSON.stringify(seedData));
+        setError("");
+      }
     } finally {
       setLoading(false);
     }
@@ -192,33 +314,93 @@ export default function App() {
       const url = isEditing ? `/api/documents/${docData.id}` : "/api/documents";
       const method = isEditing ? "PUT" : "POST";
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...docData,
-          user: "westernassenmenttest@gmail.com", // signed-in tracking
-        }),
-      });
+      let updatedRecord: DocumentRecord;
+      try {
+        const response = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...docData,
+            user: "westernassenmenttest@gmail.com", // signed-in tracking
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to save the signed document record.");
+        if (!response.ok) {
+          throw new Error("Failed to save the signed document record via API.");
+        }
+        updatedRecord = await response.json();
+      } catch (apiErr) {
+        console.warn("API save failed, executing locally in offline mode:", apiErr);
+        const nowStr = new Date().toISOString();
+        if (isEditing) {
+          const original = documents.find(d => d.id === docData.id);
+          const oldLogs = original?.auditLog || [];
+          
+          const changes: string[] = [];
+          const fields = ["documentName", "recordDate", "category", "department", "status", "storageLocation", "remarks"] as const;
+          fields.forEach((field) => {
+            if (docData[field] !== undefined && docData[field] !== (original?.[field] as any)) {
+              changes.push(`Updated ${field} from "${original?.[field]}" to "${docData[field]}"`);
+            }
+          });
+
+          const nextLogs = [...oldLogs];
+          if (changes.length > 0) {
+            nextLogs.push({
+              timestamp: nowStr,
+              action: "Updated",
+              changes: changes.join("; ") + " (Offline Mode)",
+              user: "westernassenmenttest@gmail.com"
+            });
+          }
+
+          updatedRecord = {
+            ...original,
+            ...docData,
+            updatedAt: nowStr,
+            auditLog: nextLogs
+          } as DocumentRecord;
+        } else {
+          updatedRecord = {
+            id: docData.id || `doc-${Date.now()}`,
+            documentName: docData.documentName || "Untitled Document",
+            recordDate: docData.recordDate || nowStr.split("T")[0],
+            category: docData.category || "General",
+            department: docData.department || "General",
+            status: docData.status || "Signed & Completed",
+            storageLocation: docData.storageLocation || "Google Drive",
+            remarks: docData.remarks || "",
+            createdBy: "westernassenmenttest@gmail.com",
+            createdAt: nowStr,
+            updatedAt: nowStr,
+            auditLog: [
+              {
+                timestamp: nowStr,
+                action: "Created",
+                changes: "Record created manually (Offline Mode)",
+                user: "westernassenmenttest@gmail.com"
+              }
+            ]
+          } as DocumentRecord;
+        }
       }
 
-      const updatedRecord = await response.json();
-
+      let nextDocs: DocumentRecord[];
       if (isEditing) {
-        setDocuments(documents.map((d) => (d.id === updatedRecord.id ? updatedRecord : d)));
+        nextDocs = documents.map((d) => (d.id === updatedRecord.id ? updatedRecord : d));
+        setDocuments(nextDocs);
         showToast(t.updatedSuccess);
       } else {
-        setDocuments([updatedRecord, ...documents]);
+        nextDocs = [updatedRecord, ...documents];
+        setDocuments(nextDocs);
         showToast(t.createdSuccess);
         if (sidebarActiveItem === "add") {
           setSidebarActiveItem("reports");
         }
       }
+      localStorage.setItem("signature-documents", JSON.stringify(nextDocs));
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Could not synchronize record database.");
@@ -232,15 +414,21 @@ export default function App() {
     }
 
     try {
-      const response = await fetch(`/api/documents/${id}`, {
-        method: "DELETE",
-      });
+      try {
+        const response = await fetch(`/api/documents/${id}`, {
+          method: "DELETE",
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete the signature record.");
+        if (!response.ok) {
+          throw new Error("Failed to delete the signature record via API.");
+        }
+      } catch (apiErr) {
+        console.warn("API delete failed, executing locally in offline mode:", apiErr);
       }
 
-      setDocuments(documents.filter((d) => d.id !== id));
+      const nextDocs = documents.filter((d) => d.id !== id);
+      setDocuments(nextDocs);
+      localStorage.setItem("signature-documents", JSON.stringify(nextDocs));
       showToast(t.deletedSuccess);
     } catch (err: any) {
       console.error(err);
@@ -313,7 +501,7 @@ export default function App() {
   };
 
   // Export Filtered Documents list in CSV format
-  const handleExportCSV = () => {
+  const handleExportCSV = (customDocs?: DocumentRecord[]) => {
     const headers = [
       "Document ID",
       "Document Name",
@@ -341,7 +529,9 @@ export default function App() {
     const csvRows = [];
     csvRows.push(headers.join(","));
 
-    for (const doc of filteredDocuments) {
+    const docsToExport = customDocs || filteredDocuments;
+
+    for (const doc of docsToExport) {
       const row = [
         doc.id,
         doc.documentName,
@@ -407,15 +597,23 @@ export default function App() {
   const handleImportBackupBatch = async (importedDocs: DocumentRecord[]) => {
     try {
       setLoading(true);
+      const nextDocs = [...documents];
       for (const doc of importedDocs) {
-        // Post each doc or update
-        await fetch("/api/documents", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(doc),
-        });
+        try {
+          await fetch("/api/documents", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(doc),
+          });
+        } catch (apiErr) {
+          console.warn("API batch restore failed for doc, executing offline:", doc.id, apiErr);
+        }
+        if (!nextDocs.some(d => d.id === doc.id)) {
+          nextDocs.unshift(doc);
+        }
       }
-      await fetchDocuments();
+      setDocuments(nextDocs);
+      localStorage.setItem("signature-documents", JSON.stringify(nextDocs));
       showToast("Archival database merged successfully");
     } catch (err) {
       console.error(err);
@@ -429,17 +627,24 @@ export default function App() {
   const handleBulkDelete = async (ids: string[]) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/documents/bulk-delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
-      });
-      if (!response.ok) throw new Error("Bulk delete action failed.");
+      try {
+        const response = await fetch("/api/documents/bulk-delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids }),
+        });
+        if (!response.ok) throw new Error("Bulk delete action failed.");
+      } catch (apiErr) {
+        console.warn("API bulk delete failed, executing offline:", apiErr);
+      }
+
+      const nextDocs = documents.filter((doc) => !ids.includes(doc.id));
+      setDocuments(nextDocs);
+      localStorage.setItem("signature-documents", JSON.stringify(nextDocs));
       showToast(`Pruned ${ids.length} signature records`);
-      await fetchDocuments();
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      alert(err.message || "Error occurred during bulk deletion.");
     } finally {
       setLoading(false);
     }
@@ -449,15 +654,134 @@ export default function App() {
   const handleResetData = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/documents/reset", {
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Database reset operation failed.");
+      try {
+        const response = await fetch("/api/documents/reset", {
+          method: "POST",
+        });
+        if (!response.ok) throw new Error("Database reset operation failed.");
+      } catch (apiErr) {
+        console.warn("API reset failed, executing offline:", apiErr);
+      }
+
+      const seedData = [
+        {
+          id: "doc-1",
+          documentName: "Visa Extension - Employee Renewal",
+          recordDate: "2026-07-21",
+          category: "Immigration / Visa",
+          department: "HR",
+          status: "Signed & Completed",
+          storageLocation: "Google Drive - HR Folder",
+          remarks: "Employee visa extension renewal document signed and uploaded for immigration processing.",
+          createdBy: "westernassenmenttest@gmail.com",
+          createdAt: "2026-07-21T00:00:00.000Z",
+          updatedAt: "2026-07-21T00:00:00.000Z",
+          auditLog: [
+            {
+              timestamp: "2026-07-21T00:00:00.000Z",
+              action: "Created",
+              changes: "Initial record created via Voice Input",
+              user: "westernassenmenttest@gmail.com"
+            }
+          ]
+        },
+        {
+          id: "doc-2",
+          documentName: "Office Lease Agreement - Sector 4",
+          recordDate: "2026-06-15",
+          category: "Real Estate",
+          department: "Operations",
+          status: "Signed & Completed",
+          storageLocation: "Physical File Cab - Drawer B",
+          remarks: "Signed the 2-year renewal agreement for the main office floor. Monthly rent remains locked.",
+          createdBy: "westernassenmenttest@gmail.com",
+          createdAt: "2026-06-15T14:30:00.000Z",
+          updatedAt: "2026-06-16T09:15:00.000Z",
+          auditLog: [
+            {
+              timestamp: "2026-06-15T14:30:00.000Z",
+              action: "Created",
+              changes: "Initial record created",
+              user: "westernassenmenttest@gmail.com"
+            },
+            {
+              timestamp: "2026-06-16T09:15:00.000Z",
+              action: "Updated",
+              changes: "Changed storage location from 'Pending Scan' to 'Physical File Cab - Drawer B'",
+              user: "westernassenmenttest@gmail.com"
+            }
+          ]
+        },
+        {
+          id: "doc-3",
+          documentName: "Software Consulting Service Agreement",
+          recordDate: "2026-05-10",
+          category: "Contract",
+          department: "Legal",
+          status: "Signed & Completed",
+          storageLocation: "OneDrive - Contracts",
+          remarks: "Service agreement with DevFlow Inc. for outsourcing backend infrastructure modernization.",
+          createdBy: "westernassenmenttest@gmail.com",
+          createdAt: "2026-05-10T10:00:00.000Z",
+          updatedAt: "2026-05-10T10:00:00.000Z",
+          auditLog: [
+            {
+              timestamp: "2026-05-10T10:00:00.000Z",
+              action: "Created",
+              changes: "Initial record created",
+              user: "westernassenmenttest@gmail.com"
+            }
+          ]
+        },
+        {
+          id: "doc-4",
+          documentName: "Q2 Financial Statement Approval",
+          recordDate: "2026-07-10",
+          category: "Finance",
+          department: "Finance",
+          status: "Signed & Completed",
+          storageLocation: "Google Drive - Finance Secure",
+          remarks: "Board-approved financial statement summarizing the Q2 profits and expenditure.",
+          createdBy: "westernassenmenttest@gmail.com",
+          createdAt: "2026-07-10T16:45:00.000Z",
+          updatedAt: "2026-07-10T16:45:00.000Z",
+          auditLog: [
+            {
+              timestamp: "2026-07-10T16:45:00.000Z",
+              action: "Created",
+              changes: "Initial record created",
+              user: "westernassenmenttest@gmail.com"
+            }
+          ]
+        },
+        {
+          id: "doc-5",
+          documentName: "NDAs for Product Team Onboarding",
+          recordDate: "2026-07-01",
+          category: "Legal",
+          department: "HR",
+          status: "Pending Review",
+          storageLocation: "Local Storage - Pending Sync",
+          remarks: "Draft non-disclosure agreements prepared for the upcoming July engineering batch.",
+          createdBy: "westernassenmenttest@gmail.com",
+          createdAt: "2026-07-01T09:00:00.000Z",
+          updatedAt: "2026-07-01T09:00:00.000Z",
+          auditLog: [
+            {
+              timestamp: "2026-07-01T09:00:00.000Z",
+              action: "Created",
+              changes: "Initial record created",
+              user: "westernassenmenttest@gmail.com"
+            }
+          ]
+        }
+      ];
+      setDocuments(seedData);
+      localStorage.setItem("signature-documents", JSON.stringify(seedData));
       showToast("Restored template seeds database");
-      await fetchDocuments();
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      alert(err.message || "Error resetting database.");
     } finally {
       setLoading(false);
     }
@@ -481,11 +805,15 @@ export default function App() {
 
   // Apply Search and Filters
   const filteredDocuments = documents.filter((doc) => {
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      doc.documentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (doc.remarks && doc.remarks.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      doc.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.department.toLowerCase().includes(searchQuery.toLowerCase());
+      doc.documentName.toLowerCase().includes(query) ||
+      (doc.remarks && doc.remarks.toLowerCase().includes(query)) ||
+      doc.category.toLowerCase().includes(query) ||
+      doc.department.toLowerCase().includes(query) ||
+      doc.id.toLowerCase().includes(query) ||
+      (doc.createdBy && doc.createdBy.toLowerCase().includes(query)) ||
+      (doc.storageLocation && doc.storageLocation.toLowerCase().includes(query));
 
     const matchesCategory = !selectedCategory || doc.category === selectedCategory;
     const matchesDepartment = !selectedDepartment || doc.department === selectedDepartment;
@@ -984,246 +1312,63 @@ export default function App() {
               />
             )}
 
-            {/* Dashboard Insights Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Recent Activities Timeline (Left Column) */}
-              <div className="lg:col-span-7 bg-card border rounded-xl p-5 shadow-xs flex flex-col justify-between">
+            {/* Simple Dashboard Controls: Search, Export JSON, Export CSV */}
+            <div className="bg-card border rounded-xl p-5 shadow-xs space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider border-b border-border/60 pb-2 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
-                    System Transaction Timeline
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-1.5 h-3 bg-primary rounded-full shrink-0" />
+                    Search & Operations Console
                   </h3>
-                  <div className="space-y-3.5 mt-4 max-h-[280px] overflow-y-auto pr-1">
-                    {recentActivities.length === 0 ? (
-                      <p className="text-xs text-muted-foreground italic text-center py-8">No recent activities on current cluster node.</p>
-                    ) : (
-                      recentActivities.map((act, index) => (
-                        <div key={index} className="flex gap-3 text-xs relative items-start">
-                          {index !== recentActivities.length - 1 && (
-                            <div className="absolute left-1.5 top-4 bottom-0 w-[1px] bg-border" />
-                          )}
-                          <div className="w-3 h-3 rounded-full bg-indigo-500/10 border border-indigo-500/40 mt-1 flex items-center justify-center shrink-0">
-                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                          </div>
-                          <div className="space-y-0.5 truncate flex-1">
-                            <div className="flex justify-between items-center text-[11px] text-muted-foreground">
-                              <span className="font-bold text-foreground truncate max-w-[180px] sm:max-w-xs">{act.docName}</span>
-                              <span className="font-mono text-[9px] shrink-0">
-                                {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-muted-foreground truncate">
-                              <span className={`px-1 py-0.2 rounded font-mono font-bold text-[9px] mr-1.5 uppercase ${
-                                act.action === "Created" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400" : "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400"
-                              }`}>{act.action}</span>
-                              {act.changes}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-border/60 mt-4 flex justify-between items-center text-[10px] text-muted-foreground">
-                  <span>Showing top 5 transaction logs</span>
-                  <button 
-                    onClick={() => setSidebarActiveItem("data")} 
-                    className="text-primary hover:underline font-bold"
-                  >
-                    View Auditor Desk
-                  </button>
-                </div>
-              </div>
-
-              {/* System Insights Panel (Right Column) */}
-              <div className="lg:col-span-5 bg-card border rounded-xl p-5 shadow-xs space-y-4">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-wider border-b border-border/60 pb-2">
-                  Storage & Verification Analytics
-                </h3>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 border rounded-xl bg-accent/10">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Verification Rate</span>
-                    <span className="text-lg font-extrabold text-foreground mt-1 block">
-                      {documents.length > 0 
-                        ? `${Math.round((documents.filter(d => d.status === "Signed & Completed").length / documents.length) * 100)}%`
-                        : "0%"
-                      }
-                    </span>
-                    <span className="text-[9px] text-muted-foreground block mt-0.5">Signed completion index</span>
-                  </div>
-                  <div className="p-3 border rounded-xl bg-accent/10">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Database Size</span>
-                    <span className="text-lg font-extrabold text-foreground mt-1 block">
-                      {(JSON.stringify(documents).length / 1024).toFixed(1)} KB
-                    </span>
-                    <span className="text-[9px] text-muted-foreground block mt-0.5">Active allocated JSON storage</span>
-                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Find specific signature records or instantly export reports in JSON/CSV formats
+                  </p>
                 </div>
 
-                <div className="space-y-2.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Storage Allocation</span>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between items-center text-[11px]">
-                      <span className="font-semibold text-muted-foreground">Google Drive (Secure Vault)</span>
-                      <span className="font-bold text-foreground font-mono">
-                        {documents.filter(d => d.storageLocation.toLowerCase().includes("drive")).length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px]">
-                      <span className="font-semibold text-muted-foreground">OneDrive Cloud Nodes</span>
-                      <span className="font-bold text-foreground font-mono">
-                        {documents.filter(d => d.storageLocation.toLowerCase().includes("onedrive")).length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px]">
-                      <span className="font-semibold text-muted-foreground">Local Sync (Offline Stash)</span>
-                      <span className="font-bold text-foreground font-mono">
-                        {documents.filter(d => !d.storageLocation.toLowerCase().includes("drive") && !d.storageLocation.toLowerCase().includes("onedrive")).length}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Toolbar & Filter Pane */}
-            <div className="bg-card border rounded-lg p-3.5 shadow-xs space-y-3">
-              <div className="flex flex-col lg:flex-row gap-2.5">
-                {/* Search Input */}
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t.searchPlaceholder}
-                    className="w-full pl-8 pr-3 py-1.5 border rounded-md bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
-                    id="search-input"
-                  />
-                </div>
-
-                {/* Backup & Import Tools */}
-                <div className="flex items-center gap-2">
-                  {/* Export backup */}
+                <div className="flex items-center gap-2.5">
+                  {/* Export JSON Button */}
                   <button
                     onClick={handleExportBackup}
-                    className="px-2.5 py-1.5 border rounded-md hover:bg-accent text-foreground text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                    title="Backup Documents (JSON)"
+                    className="flex-1 md:flex-none px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
+                    title="Export all records to JSON backup format"
+                    id="dashboard-export-json"
                   >
-                    <Download className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{t.backupBtn}</span>
+                    <Download className="h-4 w-4" />
+                    <span>Export JSON</span>
                   </button>
 
-                  {/* Export CSV */}
+                  {/* Export CSV Button */}
                   <button
-                    onClick={handleExportCSV}
-                    className="px-2.5 py-1.5 border rounded-md hover:bg-accent text-foreground text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                    title="Export Filtered CSV"
-                    id="export-csv-btn"
+                    onClick={() => handleExportCSV()}
+                    className="flex-1 md:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
+                    title="Export filtered records to standard CSV sheet"
+                    id="dashboard-export-csv"
                   >
-                    <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span className="hidden sm:inline">{t.exportCSV}</span>
+                    <FileSpreadsheet className="h-4 w-4" />
+                    <span>Export CSV</span>
                   </button>
-
-                  {/* Import backup */}
-                  <label className="px-2.5 py-1.5 border rounded-md hover:bg-accent text-foreground text-xs font-semibold flex items-center gap-1 cursor-pointer">
-                    <Upload className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{t.importBtn}</span>
-                    <input
-                      type="file"
-                      accept=".json"
-                      onChange={handleImportBackup}
-                      className="hidden"
-                    />
-                  </label>
                 </div>
               </div>
 
-              {/* Dynamic Category/Dept/Status Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2.5 border-t border-border/60">
-                {/* Category Select */}
-                <div className="space-y-1">
-                  <span className="micro-label">
-                    {t.category}
-                  </span>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full p-1.5 border rounded-md bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
-                  >
-                    <option value="">All Categories</option>
-                    {uniqueCategories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Department Select */}
-                <div className="space-y-1">
-                  <span className="micro-label">
-                    {t.department}
-                  </span>
-                  <select
-                    value={selectedDepartment}
-                    onChange={(e) => setSelectedDepartment(e.target.value)}
-                    className="w-full p-1.5 border rounded-md bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
-                  >
-                    <option value="">All Departments</option>
-                    {uniqueDepartments.map((dept) => (
-                      <option key={dept} value={dept}>
-                        {dept}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Status Select */}
-                <div className="space-y-1">
-                  <span className="micro-label">
-                    {t.status}
-                  </span>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full p-1.5 border rounded-md bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
-                  >
-                    <option value="">All Statuses</option>
-                    <option value="Signed & Completed">Signed & Completed</option>
-                    <option value="Pending Review">Pending Review</option>
-                    <option value="Draft">Draft</option>
-                  </select>
-                </div>
-
-                {/* Year Select */}
-                <div className="space-y-1">
-                  <span className="micro-label">
-                    {t.year}
-                  </span>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    className="w-full p-1.5 border rounded-md bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
-                  >
-                    <option value="">All Years</option>
-                    {uniqueYears.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              {/* The Search input */}
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search documents by title, employee name, document number, storage location, or remarks..."
+                  className="w-full pl-10 pr-4 py-2.5 border rounded-lg bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none placeholder:text-muted-foreground/60 shadow-inner"
+                  id="search-input"
+                />
               </div>
 
               {/* Filters Info and Reset */}
-              {(searchQuery || selectedCategory || selectedDepartment || selectedStatus || selectedYear) && (
-                <div className="flex justify-between items-center bg-accent/20 p-2.5 rounded-xl text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1">
+              {searchQuery && (
+                <div className="flex justify-between items-center bg-accent/20 px-3.5 py-2 rounded-lg text-[11px] text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
                     <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
-                    Active filters. Found{" "}
-                    <strong className="text-foreground">{filteredDocuments.length}</strong> matching records.
+                    Active Search. Found <strong className="text-foreground">{filteredDocuments.length}</strong> matching records.
                   </span>
                   <button
                     onClick={handleResetFilters}
@@ -1235,46 +1380,98 @@ export default function App() {
               )}
             </div>
 
-            {/* Library Card Grid */}
-            <main>
+            {/* Signed Reports Digital Ledger */}
+            <main className="bg-card border rounded-xl shadow-xs overflow-hidden">
+              <div className="px-5 py-4 border-b border-border/60 bg-accent/5 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                    Signed Documents Report Ledger
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Live digital ledger tracking certified signature transactions
+                  </p>
+                </div>
+                <div className="text-[11px] font-medium text-muted-foreground bg-accent/20 px-2.5 py-1 rounded-md">
+                  Showing {filteredDocuments.length} of {documents.length} records
+                </div>
+              </div>
+
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                   <RefreshCw className="h-8 w-8 text-primary animate-spin" />
                   <p className="text-xs text-muted-foreground font-semibold">{t.loading}</p>
                 </div>
               ) : filteredDocuments.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center bg-card border rounded-2xl p-8 shadow-xs">
+                <div className="flex flex-col items-center justify-center py-20 text-center p-8">
                   <Folder className="h-12 w-12 text-muted-foreground opacity-50 mb-3" />
                   <h3 className="text-sm font-bold text-foreground">No Records Found</h3>
                   <p className="text-xs text-muted-foreground max-w-sm mt-1 leading-relaxed">
                     {t.noRecords}
                   </p>
-                  <button
-                    onClick={handleTriggerCreate}
-                    className="mt-4 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Plus className="h-4 w-4" />
-                    {t.addDocBtn}
-                  </button>
                 </div>
               ) : (
-                <motion.div
-                  layout
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  id="documents-grid"
-                >
-                  <AnimatePresence>
-                    {filteredDocuments.map((doc) => (
-                      <DocumentCard
-                        key={doc.id}
-                        document={doc}
-                        onEdit={handleTriggerEdit}
-                        onDelete={handleDeleteDocument}
-                        onView={handleTriggerView}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse" id="dashboard-ledger-table">
+                    <thead>
+                      <tr className="border-b border-border bg-accent/10 text-muted-foreground text-[10px] uppercase font-bold tracking-wider">
+                        <th className="px-5 py-3">Doc ID</th>
+                        <th className="px-5 py-3">Document Name</th>
+                        <th className="px-5 py-3">Date</th>
+                        <th className="px-5 py-3">Category</th>
+                        <th className="px-5 py-3">Department</th>
+                        <th className="px-5 py-3">Status</th>
+                        <th className="px-5 py-3">Storage Location</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50 text-xs">
+                      {filteredDocuments.map((doc, idx) => (
+                        <tr 
+                          key={doc.id}
+                          className="hover:bg-accent/10 transition-colors"
+                        >
+                          <td className="px-5 py-3.5 font-mono text-[10px] font-bold text-muted-foreground">
+                            {doc.id}
+                          </td>
+                          <td className="px-5 py-3.5 font-semibold text-foreground">
+                            {doc.documentName}
+                          </td>
+                          <td className="px-5 py-3.5 text-muted-foreground whitespace-nowrap">
+                            {doc.recordDate}
+                          </td>
+                          <td className="px-5 py-3.5 whitespace-nowrap">
+                            <span className="px-2 py-1 bg-accent text-accent-foreground rounded text-[10px] font-medium">
+                              {doc.category}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-muted-foreground whitespace-nowrap">
+                            {doc.department}
+                          </td>
+                          <td className="px-5 py-3.5 whitespace-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              doc.status === "Signed & Completed" 
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
+                                : doc.status === "Pending Review"
+                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                : "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                doc.status === "Signed & Completed" 
+                                  ? "bg-emerald-500" 
+                                  : doc.status === "Pending Review"
+                                  ? "bg-amber-500"
+                                  : "bg-blue-500"
+                              }`} />
+                              {doc.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-muted-foreground">
+                            {doc.storageLocation}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </main>
           </div>

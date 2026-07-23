@@ -204,22 +204,92 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
     setAiParsedPreview(null);
 
     try {
-      const response = await fetch("/api/parse-voice", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          transcript: voiceTranscript,
-          localDate: new Date().toISOString().split("T")[0],
-        }),
-      });
+      let data;
+      try {
+        const response = await fetch("/api/parse-voice", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transcript: voiceTranscript,
+            localDate: new Date().toISOString().split("T")[0],
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to communicate with AI parsing engine");
+        if (!response.ok) {
+          throw new Error("Failed to communicate with AI parsing engine");
+        }
+
+        data = await response.json();
+      } catch (apiErr) {
+        console.warn("Express server unavailable, falling back to smart client-side voice parsing:", apiErr);
+        // Robust regex-based fallback parsing
+        const text = voiceTranscript.toLowerCase();
+        const today = new Date().toISOString().split("T")[0];
+        
+        let documentName = "Voice Note Record";
+        let category = "General";
+        let department = "General";
+        let status = "Signed & Completed";
+        let recordDate = today;
+        let remarks = voiceTranscript;
+
+        if (text.includes("visa") || text.includes("extension") || text.includes("passport") || text.includes("immigration")) {
+          category = "Immigration / Visa";
+          department = "HR";
+          documentName = "Visa Extension Document";
+        } else if (text.includes("lease") || text.includes("rent") || text.includes("apartment") || text.includes("office")) {
+          category = "Real Estate";
+          department = "Operations";
+          documentName = "Lease Agreement";
+        } else if (text.includes("contract") || text.includes("nda") || text.includes("agreement") || text.includes("consulting")) {
+          category = "Contract";
+          department = "Legal";
+          documentName = "Consulting & Service Agreement";
+        } else if (text.includes("financial") || text.includes("tax") || text.includes("billing") || text.includes("audit") || text.includes("salary")) {
+          category = "Finance";
+          department = "Finance";
+          documentName = "Financial Document";
+        } else if (text.includes("onboarding") || text.includes("employee") || text.includes("hire") || text.includes("recruit")) {
+          category = "HR";
+          department = "HR";
+          documentName = "Employee Record Document";
+        }
+
+        // Attempt to extract title
+        const cleanText = voiceTranscript.trim();
+        if (cleanText.length > 5 && cleanText.length < 60) {
+          documentName = cleanText;
+        } else {
+          const words = cleanText.split(" ");
+          if (words.length > 1) {
+            documentName = words.slice(0, 4).join(" ").replace(/^[tT]he\s+/, "");
+            documentName = documentName.replace(/\b\w/g, l => l.toUpperCase());
+          }
+        }
+
+        // Attempt to scan dates
+        const dateMatch = voiceTranscript.match(/(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(st|nd|rd|th)?,\s+\d{4}/i);
+        if (dateMatch) {
+          try {
+            const parsedDate = new Date(dateMatch[0]);
+            if (!isNaN(parsedDate.getTime())) {
+              recordDate = parsedDate.toISOString().split("T")[0];
+            }
+          } catch (_) {}
+        }
+
+        data = {
+          documentName,
+          category,
+          recordDate,
+          department,
+          status,
+          remarks: `${remarks} (Offline Mode Fallback)`
+        };
       }
 
-      const data = await response.json();
       setAiParsedPreview(data);
 
       // Auto-populate form
