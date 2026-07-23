@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Kantumruy Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Kantumruy Pro", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom theme colors */
+  --color-primary: #4F46E5;
+  --color-primary-foreground: #FFFFFF;
+  
+  --color-background: #F1F5F9;
+  --color-foreground: #1E293B;
+  
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1E293B;
+  
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1E293B;
+  
+  --color-muted: #F8FAFC;
+  --color-muted-foreground: #64748B;
+  
+  --color-border: #E2E8F0;
+  --color-ring: #6366F1;
+}
+
+@layer base {
+  :root {
+    --background: #F1F5F9;
+    --foreground: #1E293B;
+    --card: #FFFFFF;
+    --card-foreground: #1E293B;
+    --border: #E2E8F0;
+    --primary: #4F46E5;
+    --muted-foreground: #64748B;
+  }
+
+  .dark {
+    --background: #0F172A;
+    --foreground: #F8FAFC;
+    --card: #1E293B;
+    --card-foreground: #F8FAFC;
+    --border: #334155;
+    --primary: #6366F1;
+    --muted-foreground: #94A3B8;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--background);
+    color: var(--foreground);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Custom layout / utility helpers matching High Density spec */
+.micro-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.dark .micro-label {
+  color: #64748B;
+}
+
+.stat-val {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1E293B;
+  line-height: 1;
+}
+
+.dark .stat-val {
+  color: #F8FAFC;
+}
+
+.status-pill {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-completed {
+  background-color: #DCFCE7;
+  color: #166534;
+}
+
+.dark .status-completed {
+  background-color: rgba(22, 101, 52, 0.2);
+  color: #4ADE80;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.status-pending {
+  background-color: #FEF9C3;
+  color: #854D0E;
+}
+
+.dark .status-pending {
+  background-color: rgba(133, 77, 14, 0.2);
+  color: #FACC15;
+  border: 1px solid rgba(250, 202, 21, 0.2);
+}
+
+.status-draft {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.dark .status-draft {
+  background-color: rgba(30, 64, 175, 0.2);
+  color: #60A5FA;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.voice-btn-gradient {
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+/* Custom thin clean border shadow overrides */
+.card-density {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #print-section, #print-section * {
+    visibility: visible !important;
+  }
+  #print-section {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+}
+
