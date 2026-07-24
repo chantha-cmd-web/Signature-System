@@ -174,6 +174,13 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
 
   const totalPages = Math.ceil(sortedDocuments.length / pageSize) || 1;
 
+  // Keep current page inside valid bounds if documents are deleted
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   // Handle printing active report list
   const handlePrintReport = () => {
     // We will inject a print wrapper styled element with "print-section"

@@ -1,29 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* Enable class-based dark mode selector in Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", "Kantumruy Pro", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", "Kantumruy Pro", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Custom theme colors */
-  --color-primary: #4F46E5;
-  --color-primary-foreground: #FFFFFF;
+  /* Custom theme colors bound to live CSS custom properties */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   
-  --color-background: #F1F5F9;
-  --color-foreground: #1E293B;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   
-  --color-card: #FFFFFF;
-  --color-card-foreground: #1E293B;
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
   
-  --color-popover: #FFFFFF;
-  --color-popover-foreground: #1E293B;
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--card-foreground);
   
-  --color-muted: #F8FAFC;
-  --color-muted-foreground: #64748B;
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   
-  --color-border: #E2E8F0;
-  --color-ring: #6366F1;
+  --color-border: var(--border);
+  --color-ring: var(--ring);
 }
 
 @layer base {
@@ -34,7 +37,10 @@
     --card-foreground: #1E293B;
     --border: #E2E8F0;
     --primary: #4F46E5;
+    --primary-foreground: #FFFFFF;
+    --muted: #F8FAFC;
     --muted-foreground: #64748B;
+    --ring: #6366F1;
   }
 
   .dark {
@@ -44,7 +50,10 @@
     --card-foreground: #F8FAFC;
     --border: #334155;
     --primary: #6366F1;
+    --primary-foreground: #FFFFFF;
+    --muted: #1E293B;
     --muted-foreground: #94A3B8;
+    --ring: #6366F1;
   }
 
   body {

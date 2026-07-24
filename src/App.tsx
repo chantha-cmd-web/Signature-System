@@ -29,6 +29,13 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  Edit,
+  Trash2,
+  Shield,
+  User,
+  Lock,
+  Settings,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -103,9 +110,43 @@ export default function App() {
   const [sidebarExpanded, setSidebarExpanded] = useState<boolean>(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
+  // User Authentication & Roles Configuration
+  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "user">(() => {
+    return (localStorage.getItem("signature-current-user-role") as "admin" | "user") || "admin";
+  });
+
+  const [adminProfile, setAdminProfile] = useState(() => {
+    const saved = localStorage.getItem("signature-admin-profile");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        // ignore
+      }
+    }
+    return {
+      displayName: "Western Admin",
+      email: "westernassenmenttest@gmail.com",
+      jobTitle: "Lead Systems Archivist",
+      department: "SecOps & Archival Vaults",
+      photoUrl: "", // empty for initials fallback
+      securityLevel: "Two-Factor Auth Enabled",
+      bio: "Senior security administrator in charge of certified digital logs."
+    };
+  });
+
   useEffect(() => {
     localStorage.setItem("signature-active-sidebar", sidebarActiveItem);
   }, [sidebarActiveItem]);
+
+  // Automatically enforce administrative routing locks
+  useEffect(() => {
+    localStorage.setItem("signature-current-user-role", currentUserRole);
+    if (currentUserRole !== "admin" && sidebarActiveItem === "data") {
+      setSidebarActiveItem("dashboard");
+      showToast("Access Restricted: Data Management is for Admin only.");
+    }
+  }, [currentUserRole, sidebarActiveItem]);
 
   // Modal controls
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,6 +158,7 @@ export default function App() {
 
   // Status notifications
   const [toastMessage, setToastMessage] = useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const t = translations[language];
 
@@ -407,12 +449,13 @@ export default function App() {
     }
   };
 
-  // Delete CRUD handler
-  const handleDeleteDocument = async (id: string) => {
-    if (!window.confirm(language === "en" ? "Are you sure you want to permanently delete this signature record?" : "តើអ្នកប្រាកដជាចង់លុបកំណត់ត្រាហត្ថលេខានេះជាអចិន្ត្រៃយ៍មែនទេ?")) {
-      return;
-    }
+  // Delete CRUD handler - opens custom confirmation modal
+  const handleDeleteDocument = (id: string) => {
+    setDeleteConfirmId(id);
+  };
 
+  // Actual execution of Delete CRUD upon custom confirmation
+  const executeDeleteDocument = async (id: string) => {
     try {
       try {
         const response = await fetch(`/api/documents/${id}`, {
@@ -432,7 +475,9 @@ export default function App() {
       showToast(t.deletedSuccess);
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "An error occurred during deletion.");
+      showToast(err.message || "An error occurred during deletion.");
+    } finally {
+      setDeleteConfirmId(null);
     }
   };
 
@@ -648,6 +693,13 @@ export default function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Update Profile
+  const handleUpdateProfile = (updatedProfile: typeof adminProfile) => {
+    setAdminProfile(updatedProfile);
+    localStorage.setItem("signature-admin-profile", JSON.stringify(updatedProfile));
+    showToast("Profile credentials updated successfully");
   };
 
   // Reset Master Database
@@ -866,184 +918,388 @@ export default function App() {
       <AnimatePresence>
         {mobileSidebarOpen && (
           <>
-            {/* Backdrop Overlay */}
+            {/* Backdrop Overlay with smooth fade */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileSidebarOpen(false)}
-              className="fixed inset-0 bg-black z-50 md:hidden"
+              className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 md:hidden"
             />
             {/* Slide-out Sidebar Panel */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.25 }}
-              className="fixed top-0 left-0 bottom-0 w-64 bg-[#0F172A] text-slate-100 p-4 z-50 flex flex-col justify-between shadow-2xl md:hidden"
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              className="fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-slate-800 text-slate-100 p-5 z-50 flex flex-col justify-between shadow-2xl md:hidden"
             >
               <div className="space-y-6">
                 {/* Mobile Drawer Header */}
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 bg-primary rounded flex items-center justify-center font-bold text-white text-xs shrink-0">SL</div>
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary to-indigo-600 rounded-lg flex items-center justify-center font-black text-white text-sm shadow-md shadow-primary/20">
+                      SL
+                    </div>
                     <div>
-                      <span className="text-sm font-bold tracking-tight">SignLog<span className="text-primary text-[9px] ml-0.5">PRO</span></span>
-                      <span className="block text-[8px] text-slate-400 font-mono">SECURE VAULT v2.0</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-extrabold tracking-tight text-white uppercase">
+                          SignLog
+                        </span>
+                        <span className="bg-primary/20 text-primary text-[8px] font-black px-1 py-0.2 rounded uppercase font-mono tracking-widest">
+                          PRO
+                        </span>
+                      </div>
+                      <span className="block text-[8px] text-slate-400 font-mono tracking-wider">SECURE VAULT v2.0</span>
                     </div>
                   </div>
                   <button
                     onClick={() => setMobileSidebarOpen(false)}
-                    className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg transition-all"
                     title={t.closeSidebar}
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
-                {/* Mobile Navigation Items */}
-                <nav className="space-y-1.5">
+                {/* Interactive Role Switcher Card inside Mobile Drawer */}
+                <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                      <Shield className="h-3 w-3 text-primary" /> Security Context
+                    </span>
+                    <span className="flex h-2 w-2 relative">
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                        currentUserRole === "admin" ? "bg-emerald-400" : "bg-amber-400"
+                      }`} />
+                      <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                        currentUserRole === "admin" ? "bg-emerald-500" : "bg-amber-500"
+                      }`} />
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 bg-slate-950/60 p-2 rounded-lg border border-slate-800/40">
+                    <div className="truncate">
+                      <p className="text-[10px] font-bold text-slate-200">
+                        {currentUserRole === "admin" ? "Administrator Mode" : "Regular User Mode"}
+                      </p>
+                      <p className="text-[8px] text-slate-400 truncate font-mono">
+                        {currentUserRole === "admin" ? "Full clearance" : "Restricted database"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const next = currentUserRole === "admin" ? "user" : "admin";
+                        setCurrentUserRole(next);
+                        showToast(`Switched Context: ${next === "admin" ? "Administrator" : "Regular User"}`);
+                      }}
+                      className="px-2 py-1 bg-primary hover:opacity-90 text-[8px] font-extrabold text-white rounded uppercase tracking-wider transition-all"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+
+                {/* Mobile Navigation List */}
+                <nav className="space-y-1">
                   <button
-                    onClick={() => handleSidebarClick("dashboard")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
+                    onClick={() => {
+                      handleSidebarClick("dashboard");
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
                       sidebarActiveItem === "dashboard"
-                        ? "bg-primary text-white font-black"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                        : "text-slate-400 hover:text-white hover:bg-slate-900"
                     }`}
                   >
-                    <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
+                    <LayoutDashboard className="h-4.5 w-4.5 text-primary shrink-0" />
                     <span>Dashboard Overview</span>
                   </button>
 
                   <button
-                    onClick={() => handleSidebarClick("add")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
+                    onClick={() => {
+                      handleSidebarClick("add");
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
                       sidebarActiveItem === "add"
-                        ? "bg-primary text-white font-black"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                        : "text-slate-400 hover:text-white hover:bg-slate-900"
                     }`}
                   >
-                    <FilePlus className="h-4 w-4 text-emerald-400 shrink-0" />
+                    <FilePlus className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
                     <span>Add Signed Document</span>
                   </button>
 
                   <button
-                    onClick={() => handleSidebarClick("reports")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
+                    onClick={() => {
+                      handleSidebarClick("reports");
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
                       sidebarActiveItem === "reports"
-                        ? "bg-primary text-white font-black"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                        : "text-slate-400 hover:text-white hover:bg-slate-900"
                     }`}
                   >
-                    <FileCheck className="h-4 w-4 text-amber-400 shrink-0" />
-                    <span>Signed Report</span>
+                    <FileCheck className="h-4.5 w-4.5 text-amber-400 shrink-0" />
+                    <span>Signed Report Ledger</span>
                   </button>
 
-                  <button
-                    onClick={() => handleSidebarClick("data")}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
-                      sidebarActiveItem === "data"
-                        ? "bg-primary text-white font-black"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
-                    }`}
-                  >
-                    <Database className="h-4 w-4 text-blue-400 shrink-0" />
-                    <span>Data Management</span>
-                  </button>
+                  {currentUserRole === "admin" && (
+                    <button
+                      onClick={() => {
+                        handleSidebarClick("data");
+                        setMobileSidebarOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
+                        sidebarActiveItem === "data"
+                          ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                          : "text-slate-400 hover:text-white hover:bg-slate-900"
+                      }`}
+                    >
+                      <Database className="h-4.5 w-4.5 text-blue-400 shrink-0" />
+                      <span>Data & Profile Admin</span>
+                    </button>
+                  )}
                 </nav>
               </div>
 
-              {/* Mobile Drawer Footer */}
-              <div className="pt-3 border-t border-slate-800 text-[10px] text-slate-500 space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <p className="truncate">Database: Live Sync</p>
+              {/* Mobile Drawer Footer User Info Badge */}
+              <div className="pt-4 border-t border-slate-900 space-y-3">
+                <div className="flex items-center gap-3">
+                  {adminProfile.photoUrl ? (
+                    <img
+                      src={adminProfile.photoUrl}
+                      alt="Profile Avatar"
+                      className="w-10 h-10 rounded-full border border-slate-800 object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 font-bold text-xs text-slate-200">
+                      {currentUserRole === "admin" 
+                        ? adminProfile.displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                        : "RU"
+                      }
+                    </div>
+                  )}
+                  <div className="truncate flex-1">
+                    <p className="text-xs font-bold text-slate-100 truncate">
+                      {currentUserRole === "admin" ? adminProfile.displayName : "Regular Operator"}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      {currentUserRole === "admin" ? adminProfile.jobTitle : "Auditor Access"}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[8px] text-slate-600 font-mono">UUID: NODE_SECURE_0x9F</p>
+                <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <p className="truncate">Database: Live Sync</p>
+                  </div>
+                  <p className="text-[8px] text-slate-600 font-mono">UUID_0x9F</p>
+                </div>
               </div>
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* Sidebar - Desktop (sticky, height full, collapsible) */}
-      <aside className={`hidden md:flex md:flex-col ${sidebarExpanded ? "md:w-60 lg:w-64" : "md:w-16"} bg-[#0F172A] text-slate-100 p-4 border-r border-slate-800 shrink-0 h-screen sticky top-0 justify-between transition-all duration-300`}>
+      {/* Sidebar - Desktop (sticky, height full, collapsible, premium luxury design) */}
+      <aside className={`hidden md:flex md:flex-col ${sidebarExpanded ? "md:w-64" : "md:w-20"} bg-slate-950 text-slate-100 p-5 border-r border-slate-800/80 shrink-0 h-screen sticky top-0 justify-between transition-all duration-300 z-30`}>
         <div className="space-y-6">
-          {/* Sidebar Header */}
-          <div className={`flex items-center ${sidebarExpanded ? "justify-between" : "justify-center"} px-1`}>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-primary rounded flex items-center justify-center font-bold text-white text-xs shrink-0">SL</div>
+          {/* Sidebar Brand Header */}
+          <div className={`flex items-center ${sidebarExpanded ? "justify-between" : "justify-center"} px-1 pb-2 border-b border-slate-900`}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-indigo-600 rounded-lg flex items-center justify-center font-black text-white text-xs shadow-md shadow-primary/20 shrink-0">
+                SL
+              </div>
               {sidebarExpanded && (
-                <div>
-                  <span className="text-sm font-bold tracking-tight">SignLog<span className="text-primary text-[9px] ml-0.5">PRO</span></span>
-                  <span className="block text-[8px] text-slate-400 font-mono">SECURE VAULT v2.0</span>
+                <div className="truncate">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-extrabold tracking-tight text-white uppercase">
+                      SignLog
+                    </span>
+                    <span className="bg-primary/20 text-primary text-[8px] font-black px-1 py-0.2 rounded uppercase font-mono tracking-widest">
+                      PRO
+                    </span>
+                  </div>
+                  <span className="block text-[8px] text-slate-400 font-mono tracking-wider">SECURE VAULT v2.0</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Navigation Items */}
-          <nav className="space-y-1.5">
+          {/* Interactive Role Switcher Card inside Desktop Sidebar */}
+          {sidebarExpanded ? (
+            <div className="bg-slate-900/40 border border-slate-800/60 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <Shield className="h-3 w-3 text-primary animate-pulse" /> Security Context
+                </span>
+                <span className="flex h-1.5 w-1.5 relative">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    currentUserRole === "admin" ? "bg-emerald-400" : "bg-amber-400"
+                  }`} />
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${
+                    currentUserRole === "admin" ? "bg-emerald-500" : "bg-amber-500"
+                  }`} />
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-1.5 bg-slate-950/60 p-2 rounded-lg border border-slate-800/40">
+                <div className="truncate max-w-[120px]">
+                  <p className="text-[10px] font-bold text-slate-200">
+                    {currentUserRole === "admin" ? "Admin Mode" : "User Mode"}
+                  </p>
+                  <p className="text-[8px] text-slate-400 truncate font-mono">
+                    {currentUserRole === "admin" ? "Clearance Level 3" : "Clearance Level 1"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const next = currentUserRole === "admin" ? "user" : "admin";
+                    setCurrentUserRole(next);
+                    showToast(`Switched Context: ${next === "admin" ? "Administrator" : "Regular User"}`);
+                  }}
+                  className="px-1.5 py-0.5 bg-primary hover:opacity-90 text-[8px] font-extrabold text-white rounded uppercase tracking-wider transition-all shrink-0"
+                >
+                  Switch
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  const next = currentUserRole === "admin" ? "user" : "admin";
+                  setCurrentUserRole(next);
+                  showToast(`Switched Context: ${next === "admin" ? "Administrator" : "Regular User"}`);
+                }}
+                className={`p-1.5 rounded-lg border transition-all ${
+                  currentUserRole === "admin" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                }`}
+                title={`Role: ${currentUserRole === "admin" ? "Admin" : "User"}. Click to toggle.`}
+              >
+                <Shield className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Premium Desktop Navigation List */}
+          <nav className="space-y-1">
             <button
               onClick={() => handleSidebarClick("dashboard")}
               title={!sidebarExpanded ? "Dashboard Overview" : undefined}
-              className={`w-full flex items-center ${sidebarExpanded ? "gap-2.5 px-3 py-2" : "justify-center p-2"} rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
+              className={`w-full flex items-center ${sidebarExpanded ? "gap-3 px-3.5 py-2.5" : "justify-center p-2.5"} rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
                 sidebarActiveItem === "dashboard"
-                  ? "bg-primary text-white font-black"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                  : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
-              <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
+              <LayoutDashboard className="h-4.5 w-4.5 text-primary shrink-0" />
               {sidebarExpanded && <span>Dashboard Overview</span>}
             </button>
 
             <button
               onClick={() => handleSidebarClick("add")}
               title={!sidebarExpanded ? "Add Signed Document" : undefined}
-              className={`w-full flex items-center ${sidebarExpanded ? "gap-2.5 px-3 py-2" : "justify-center p-2"} rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
+              className={`w-full flex items-center ${sidebarExpanded ? "gap-3 px-3.5 py-2.5" : "justify-center p-2.5"} rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
                 sidebarActiveItem === "add"
-                  ? "bg-primary text-white font-black"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                  : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
-              <FilePlus className="h-4 w-4 text-emerald-400 shrink-0" />
+              <FilePlus className="h-4.5 w-4.5 text-emerald-400 shrink-0" />
               {sidebarExpanded && <span>Add Signed Document</span>}
             </button>
 
             <button
               onClick={() => handleSidebarClick("reports")}
               title={!sidebarExpanded ? "Signed Report" : undefined}
-              className={`w-full flex items-center ${sidebarExpanded ? "gap-2.5 px-3 py-2" : "justify-center p-2"} rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
+              className={`w-full flex items-center ${sidebarExpanded ? "gap-3 px-3.5 py-2.5" : "justify-center p-2.5"} rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
                 sidebarActiveItem === "reports"
-                  ? "bg-primary text-white font-black"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                  : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
-              <FileCheck className="h-4 w-4 text-amber-400 shrink-0" />
+              <FileCheck className="h-4.5 w-4.5 text-amber-400 shrink-0" />
               {sidebarExpanded && <span>Signed Report</span>}
             </button>
 
-            <button
-              onClick={() => handleSidebarClick("data")}
-              title={!sidebarExpanded ? "Data Management" : undefined}
-              className={`w-full flex items-center ${sidebarExpanded ? "gap-2.5 px-3 py-2" : "justify-center p-2"} rounded text-[11px] font-bold tracking-wide transition-all uppercase text-left ${
-                sidebarActiveItem === "data"
-                  ? "bg-primary text-white font-black"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              }`}
-            >
-              <Database className="h-4 w-4 text-blue-400 shrink-0" />
-              {sidebarExpanded && <span>Data Management</span>}
-            </button>
+            {currentUserRole === "admin" && (
+              <button
+                onClick={() => handleSidebarClick("data")}
+                title={!sidebarExpanded ? "Data Management" : undefined}
+                className={`w-full flex items-center ${sidebarExpanded ? "gap-3 px-3.5 py-2.5" : "justify-center p-2.5"} rounded-lg text-xs font-bold tracking-wide transition-all uppercase text-left ${
+                  sidebarActiveItem === "data"
+                    ? "bg-primary text-white font-black shadow-lg shadow-primary/10"
+                    : "text-slate-400 hover:text-white hover:bg-slate-900"
+                }`}
+              >
+                <Database className="h-4.5 w-4.5 text-blue-400 shrink-0" />
+                {sidebarExpanded && <span>Data Management</span>}
+              </button>
+            )}
           </nav>
         </div>
 
-        {/* Sidebar Footer with Collapse/Expand Action Button */}
-        <div className="space-y-3 pt-3 border-t border-slate-800">
+        {/* Sidebar Footer with Live Sync, Collapse Toggle, and User Info */}
+        <div className="space-y-4 pt-4 border-t border-slate-900">
+          {/* Desktop User Info Profile Badge */}
+          {sidebarExpanded ? (
+            <div className="flex items-center gap-3 bg-slate-900/20 border border-slate-900 p-2.5 rounded-xl">
+              {adminProfile.photoUrl ? (
+                <img
+                  src={adminProfile.photoUrl}
+                  alt="Profile Avatar"
+                  className="w-9 h-9 rounded-full border border-slate-800 object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 font-bold text-xs text-slate-200">
+                  {currentUserRole === "admin" 
+                    ? adminProfile.displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                    : "RU"
+                  }
+                </div>
+              )}
+              <div className="truncate flex-1">
+                <p className="text-[11px] font-bold text-slate-100 truncate">
+                  {currentUserRole === "admin" ? adminProfile.displayName : "Regular Operator"}
+                </p>
+                <p className="text-[9px] text-slate-400 truncate">
+                  {currentUserRole === "admin" ? adminProfile.jobTitle : "Auditor Clearance"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              {adminProfile.photoUrl ? (
+                <img
+                  src={adminProfile.photoUrl}
+                  alt="Profile Avatar"
+                  className="w-9 h-9 rounded-full border border-slate-800 object-cover"
+                  referrerPolicy="no-referrer"
+                  title={adminProfile.displayName}
+                />
+              ) : (
+                <div 
+                  className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 font-bold text-xs text-slate-200"
+                  title={currentUserRole === "admin" ? adminProfile.displayName : "Regular Operator"}
+                >
+                  {currentUserRole === "admin" 
+                    ? adminProfile.displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                    : "RU"
+                  }
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Collapse Sidebar Toggle Action */}
           <button
             onClick={() => setSidebarExpanded(!sidebarExpanded)}
-            className={`w-full flex items-center ${sidebarExpanded ? "justify-start gap-2.5 px-3 py-2" : "justify-center p-2"} rounded text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer`}
+            className={`w-full flex items-center ${sidebarExpanded ? "justify-start gap-2.5 px-3 py-2" : "justify-center p-2"} rounded text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-900 transition-all cursor-pointer`}
             title={sidebarExpanded ? t.closeSidebar : t.openSidebar}
             id="sidebar-desktop-toggle-btn"
           >
@@ -1058,7 +1314,7 @@ export default function App() {
           </button>
 
           {sidebarExpanded && (
-            <div className="text-[10px] text-slate-500 space-y-1">
+            <div className="text-[9px] text-slate-500 space-y-1">
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                 <p className="truncate">Database: Live Sync</p>
@@ -1070,12 +1326,12 @@ export default function App() {
       </aside>
 
       {/* Mobile Top Navigation */}
-      <div className="flex md:hidden flex-col bg-[#0F172A] text-slate-100 px-4 py-2.5 border-b border-slate-800 sticky top-0 z-40">
+      <div className="flex md:hidden flex-col bg-slate-950 text-slate-100 px-4 py-2.5 border-b border-slate-800 sticky top-0 z-40">
         <div className="flex items-center justify-between mb-2.5">
           {/* Menu Drawer Toggle Button */}
           <button
             onClick={() => setMobileSidebarOpen(true)}
-            className="p-1.5 -ml-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all flex items-center gap-1 cursor-pointer"
+            className="p-1.5 -ml-1 text-slate-300 hover:text-white hover:bg-slate-900 rounded-md transition-all flex items-center gap-1 cursor-pointer"
             title={t.openSidebar}
             id="sidebar-mobile-open-btn"
           >
@@ -1085,47 +1341,58 @@ export default function App() {
 
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-6 bg-primary rounded flex items-center justify-center font-bold text-white text-[11px]">SL</div>
-            <span className="text-xs font-bold tracking-tight">SignLog<span className="text-primary text-[9px] ml-0.5">PRO</span></span>
+            <span className="text-xs font-bold tracking-tight">SignLog<span className="text-primary text-[9px] ml-0.5 font-black uppercase tracking-widest">PRO</span></span>
           </div>
           
-          <div className="text-[9px] text-emerald-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            <span>Online</span>
-          </div>
+          <button
+            onClick={() => {
+              const next = currentUserRole === "admin" ? "user" : "admin";
+              setCurrentUserRole(next);
+              showToast(`Switched Context: ${next === "admin" ? "Administrator" : "Regular User"}`);
+            }}
+            className="text-[9px] bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-2 py-1 rounded flex items-center gap-1"
+          >
+            <Shield className={`h-3 w-3 ${currentUserRole === "admin" ? "text-emerald-400 animate-pulse" : "text-amber-400"}`} />
+            <span>{currentUserRole === "admin" ? "Admin" : "User"}</span>
+          </button>
         </div>
 
         {/* Horizontal scroll tabs for mobile */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
           <button
             onClick={() => handleSidebarClick("dashboard")}
-            className={`px-3 py-1 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
-              sidebarActiveItem === "dashboard" ? "bg-primary text-white" : "bg-slate-800/80 text-slate-400"
+            className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+              sidebarActiveItem === "dashboard" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
             }`}
           >
             Dashboard
           </button>
           <button
             onClick={() => handleSidebarClick("add")}
-            className="px-3 py-1 rounded text-[10px] font-bold shrink-0 bg-slate-800/80 text-slate-400 uppercase tracking-wider"
+            className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+              sidebarActiveItem === "add" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
+            }`}
           >
             + Add Doc
           </button>
           <button
             onClick={() => handleSidebarClick("reports")}
-            className={`px-3 py-1 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
-              sidebarActiveItem === "reports" ? "bg-primary text-white" : "bg-slate-800/80 text-slate-400"
+            className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+              sidebarActiveItem === "reports" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
             }`}
           >
             Signed Report
           </button>
-          <button
-            onClick={() => handleSidebarClick("data")}
-            className={`px-3 py-1 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
-              sidebarActiveItem === "data" ? "bg-primary text-white" : "bg-slate-800/80 text-slate-400"
-            }`}
-          >
-            Data Management
-          </button>
+          {currentUserRole === "admin" && (
+            <button
+              onClick={() => handleSidebarClick("data")}
+              className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+                sidebarActiveItem === "data" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
+              }`}
+            >
+              Data Management
+            </button>
+          )}
         </div>
       </div>
 
@@ -1300,6 +1567,8 @@ export default function App() {
             onResetData={handleResetData}
             onBulkDelete={handleBulkDelete}
             language={language}
+            adminProfile={adminProfile}
+            onUpdateProfile={handleUpdateProfile}
           />
         ) : (
           /* Dashboard Overview */
@@ -1421,13 +1690,14 @@ export default function App() {
                         <th className="px-5 py-3">Department</th>
                         <th className="px-5 py-3">Status</th>
                         <th className="px-5 py-3">Storage Location</th>
+                        <th className="px-5 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/50 text-xs">
                       {filteredDocuments.map((doc, idx) => (
                         <tr 
                           key={doc.id}
-                          className="hover:bg-accent/10 transition-colors"
+                          className="hover:bg-accent/10 transition-colors group"
                         >
                           <td className="px-5 py-3.5 font-mono text-[10px] font-bold text-muted-foreground">
                             {doc.id}
@@ -1467,6 +1737,34 @@ export default function App() {
                           <td className="px-5 py-3.5 text-muted-foreground">
                             {doc.storageLocation}
                           </td>
+                          <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                            <div className="flex justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => handleTriggerView(doc)}
+                                className="p-1 hover:bg-accent text-muted-foreground hover:text-foreground rounded transition-colors"
+                                title="View Ledger"
+                                id={`dashboard-view-${doc.id}`}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleTriggerEdit(doc)}
+                                className="p-1 hover:bg-accent text-muted-foreground hover:text-foreground rounded transition-colors"
+                                title="Edit Document"
+                                id={`dashboard-edit-${doc.id}`}
+                              >
+                                <Edit className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteDocument(doc.id)}
+                                className="p-1 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded transition-colors"
+                                title="Delete Document"
+                                id={`dashboard-delete-${doc.id}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1499,6 +1797,91 @@ export default function App() {
             onClose={() => setIsPreviewOpen(false)}
             document={viewingDocument}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Custom Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop with elegant blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDeleteConfirmId(null)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs"
+            />
+            {/* Modal Container */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              transition={{ type: "spring", duration: 0.3 }}
+              className="relative w-full max-w-md overflow-hidden rounded-2xl bg-background border border-border p-6 shadow-2xl flex flex-col gap-4 z-10 animate-fade-in"
+            >
+              <div className="flex items-center gap-3 border-b border-border pb-3">
+                <div className="p-2.5 rounded-xl bg-destructive/10 text-destructive shrink-0">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-foreground">
+                    {language === "en" ? "Prune Signature Record" : "លុបកំណត់ត្រាហត្ថលេខា"}
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
+                    {language === "en" ? "Security Action Requested" : "សកម្មភាពសុវត្ថិភាពដែលបានស្នើសុំ"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                <p className="text-xs text-foreground leading-relaxed font-sans">
+                  {language === "en" 
+                    ? "Are you sure you want to permanently delete this signature transaction record? This operation is irreversible."
+                    : "តើអ្នកប្រាកដជាចង់លុបកំណត់ត្រាប្រតិបត្តិការហត្ថលេខានេះជាអចិន្ត្រៃយ៍មែនទេ? ប្រតិបត្តិការនេះមិនអាចត្រឡប់ក្រោយវិញបានទេ។"
+                  }
+                </p>
+
+                {/* Document Preview Snippet */}
+                {(() => {
+                  const doc = documents.find(d => d.id === deleteConfirmId);
+                  if (!doc) return null;
+                  return (
+                    <div className="p-3 rounded-lg bg-accent/20 border border-border/60 text-xs space-y-1 font-sans">
+                      <div className="flex justify-between gap-2">
+                        <span className="font-semibold text-muted-foreground shrink-0">{language === "en" ? "Document Title:" : "ចំណងជើងឯកសារ:"}</span>
+                        <span className="font-bold text-foreground truncate max-w-[200px]" title={doc.documentName}>{doc.documentName}</span>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <span className="font-semibold text-muted-foreground shrink-0">{language === "en" ? "Category / Dept:" : "ប្រភេទ / ផ្នែក:"}</span>
+                        <span className="text-muted-foreground text-right">{doc.category} ({doc.department})</span>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <span className="font-semibold text-muted-foreground shrink-0">{language === "en" ? "Record Date:" : "កាលបរិច្ឆេទកំណត់ត្រា:"}</span>
+                        <span className="text-muted-foreground">{doc.recordDate}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-border/40 mt-1">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="px-4 py-2 bg-accent hover:bg-accent/80 text-foreground text-xs font-bold rounded-lg transition-all cursor-pointer"
+                >
+                  {language === "en" ? "Cancel" : "បោះបង់"}
+                </button>
+                <button
+                  onClick={() => deleteConfirmId && executeDeleteDocument(deleteConfirmId)}
+                  className="px-4 py-2 bg-destructive hover:opacity-90 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>{language === "en" ? "Permanently Delete" : "លុបជាអចិន្ត្រៃយ៍"}</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
