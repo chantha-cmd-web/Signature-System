@@ -491,19 +491,19 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
               {/* Right Column: Parsed output */}
               <div className="lg:col-span-7 space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Transcript Input Text
                   </label>
                   <textarea
                     value={voiceTranscript}
                     onChange={(e) => setVoiceTranscript(e.target.value)}
                     placeholder='Type details here or click microphone above to speak. E.g., "Software renewal document signed by legal department on May 10th..."'
-                    className="w-full h-28 p-3 text-xs border rounded-xl bg-background text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full h-28 p-3.5 text-sm border rounded-xl bg-background text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="flex justify-between items-center gap-3">
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Info className="h-3.5 w-3.5 text-primary shrink-0" />
                     Parses dynamically via Gemini LLM
                   </span>
@@ -624,8 +624,8 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
             >
               {/* Document Title & Submitted By */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     Document Title *
                   </label>
                   <input
@@ -634,12 +634,12 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
                     value={documentName}
                     onChange={(e) => setDocumentName(e.target.value)}
                     placeholder="e.g. Visa Extension Approval"
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     Submitted By (Author)
                   </label>
                   <input
@@ -647,7 +647,7 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
                     required
                     value={submittedBy}
                     onChange={(e) => setSubmittedBy(e.target.value)}
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -655,8 +655,8 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
               {/* Grid 2: Date, Category, Department, Status */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 {/* Signature Date */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     Signature Date
                   </label>
                   <input
@@ -664,19 +664,19 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
                     required
                     value={recordDate}
                     onChange={(e) => setRecordDate(e.target.value)}
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   />
                 </div>
 
                 {/* Category select */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     Category Class
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   >
                     {categoriesList.map((cat) => (
                       <option key={cat} value={cat}>
@@ -687,14 +687,14 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
                 </div>
 
                 {/* Department select */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     Department
                   </label>
                   <select
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   >
                     {departmentsList.map((dept) => (
                       <option key={dept} value={dept}>
@@ -705,14 +705,14 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
                 </div>
 
                 {/* Status select */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                     Status Registry
                   </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as any)}
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   >
                     <option value="Signed & Completed">Signed & Completed</option>
                     <option value="Pending Review">Pending Review</option>
@@ -722,8 +722,8 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
               </div>
 
               {/* Grid 3: Storage Location preset or manual */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                   File Storage Location Location Node
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -733,13 +733,13 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
                     value={storageLocation}
                     onChange={(e) => setStorageLocation(e.target.value)}
                     placeholder="e.g. Google Drive - Secure HR"
-                    className="sm:col-span-2 w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="sm:col-span-2 w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   />
                   <select
                     onChange={(e) => {
                       if (e.target.value) setStorageLocation(e.target.value);
                     }}
-                    className="w-full p-2.5 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                   >
                     <option value="">-- Storage Presets --</option>
                     {storagePresets.map((preset) => (
@@ -752,15 +752,15 @@ export const AddSignedDocumentView: React.FC<AddSignedDocumentViewProps> = ({
               </div>
 
               {/* Remarks/Internal Notes */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
                   Internal Remarks & Log Summaries
                 </label>
                 <textarea
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   placeholder="Record summary details, specific conditions, renewal dates, scan IDs..."
-                  className="w-full h-24 p-3 border rounded-xl bg-background text-foreground text-xs focus:ring-1 focus:ring-primary focus:outline-none"
+                  className="w-full h-28 p-3 border rounded-xl bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none"
                 />
               </div>
 

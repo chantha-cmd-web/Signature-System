@@ -75,10 +75,10 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
           >
             <div className="flex justify-between items-start">
               <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground/85 block">
+                <span className="text-xs font-extrabold tracking-wider uppercase text-muted-foreground/85 block sm:text-[13px]">
                   {item.label}
                 </span>
-                <span className="text-3xl font-extrabold tracking-tight font-mono text-foreground block">
+                <span className="text-3xl font-extrabold tracking-tight font-mono text-foreground block sm:text-4xl">
                   {item.value}
                 </span>
               </div>
@@ -87,7 +87,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-border/20">
-              <p className="text-[11px] text-muted-foreground/80 leading-normal font-medium">
+              <p className="text-xs text-muted-foreground/80 leading-relaxed font-semibold">
                 {item.description}
               </p>
             </div>

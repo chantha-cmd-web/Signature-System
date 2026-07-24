@@ -336,10 +336,10 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
         <div className="overflow-x-auto w-full">
           <table className="w-full border-collapse text-left" id="print-section-report">
             <thead>
-              <tr className="bg-accent/15 border-b border-border text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              <tr className="bg-accent/15 border-b border-border text-xs font-black uppercase tracking-wider text-muted-foreground">
                 <th 
                   onClick={() => handleSort("documentName")}
-                  className="px-4 py-3 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
+                  className="px-5 py-3.5 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Document Title</span>
@@ -350,7 +350,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                 </th>
                 <th 
                   onClick={() => handleSort("recordDate")}
-                  className="px-4 py-3 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
+                  className="px-5 py-3.5 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Signing Date</span>
@@ -361,7 +361,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                 </th>
                 <th 
                   onClick={() => handleSort("createdBy")}
-                  className="px-4 py-3 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
+                  className="px-5 py-3.5 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Submitted By</span>
@@ -372,7 +372,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                 </th>
                 <th 
                   onClick={() => handleSort("category")}
-                  className="px-4 py-3 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
+                  className="px-5 py-3.5 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Category</span>
@@ -383,7 +383,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                 </th>
                 <th 
                   onClick={() => handleSort("department")}
-                  className="px-4 py-3 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
+                  className="px-5 py-3.5 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Department</span>
@@ -394,7 +394,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                 </th>
                 <th 
                   onClick={() => handleSort("status")}
-                  className="px-4 py-3 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
+                  className="px-5 py-3.5 cursor-pointer hover:bg-accent/30 hover:text-foreground transition-colors"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Status</span>
@@ -403,19 +403,19 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                     ) : <ArrowUpDown className="h-3 w-3 opacity-40" />}
                   </div>
                 </th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/60 text-xs text-foreground">
+            <tbody className="divide-y divide-border/60 text-sm text-foreground">
               {paginatedDocuments.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12 text-muted-foreground bg-accent/5">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <FileText className="h-8 w-8 text-muted-foreground/40 animate-pulse" />
-                      <p className="font-semibold">No report records matched your filters.</p>
+                      <p className="font-bold">No report records matched your filters.</p>
                       <button 
                         onClick={handleClearFilters}
-                        className="text-primary font-bold hover:underline text-[11px]"
+                        className="text-primary font-bold hover:underline text-xs"
                       >
                         Reset all filters
                       </button>
@@ -429,13 +429,13 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                     className="hover:bg-accent/5 transition-colors group"
                   >
                     {/* Document Title */}
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <div>
                         <span className="font-bold text-foreground block truncate max-w-[200px]" title={doc.documentName}>
                           {doc.documentName}
                         </span>
                         {doc.remarks && (
-                          <span className="block text-[10px] text-muted-foreground truncate max-w-[200px] mt-0.5 font-normal">
+                          <span className="block text-xs text-muted-foreground truncate max-w-[200px] mt-1 font-normal">
                             {doc.remarks}
                           </span>
                         )}
@@ -443,7 +443,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                     </td>
 
                     {/* Signing Date */}
-                    <td className="px-4 py-3 whitespace-nowrap font-medium text-muted-foreground">
+                    <td className="px-5 py-4 whitespace-nowrap font-medium text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5 text-primary shrink-0 opacity-60" />
                         <span>{formatDate(doc.recordDate)}</span>
@@ -451,32 +451,32 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                     </td>
 
                     {/* Submitted By */}
-                    <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
+                    <td className="px-5 py-4 whitespace-nowrap text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <UserCheck className="h-3.5 w-3.5 text-primary shrink-0 opacity-60" />
-                        <span className="truncate max-w-[120px] font-mono text-[11px]">{doc.createdBy || "System"}</span>
+                        <span className="truncate max-w-[120px] font-mono text-xs">{doc.createdBy || "System"}</span>
                       </div>
                     </td>
 
                     {/* Category */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <FolderDot className="h-3.5 w-3.5 text-primary shrink-0 opacity-60" />
-                        <span className="font-semibold text-foreground">{doc.category}</span>
+                        <span className="font-bold text-foreground">{doc.category}</span>
                       </div>
                     </td>
 
                     {/* Department */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <Building2 className="h-3.5 w-3.5 text-primary shrink-0 opacity-60" />
-                        <span className="font-semibold text-foreground">{doc.department}</span>
+                        <span className="font-bold text-foreground">{doc.department}</span>
                       </div>
                     </td>
 
                     {/* Status */}
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                         doc.status === "Signed & Completed"
                           ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400"
                           : doc.status === "Pending Review"
@@ -488,7 +488,7 @@ export const SignedReportView: React.FC<SignedReportViewProps> = ({
                     </td>
 
                     {/* Actions cell */}
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <td className="px-5 py-4 text-right whitespace-nowrap">
                       <div className="flex justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => onView(doc)}

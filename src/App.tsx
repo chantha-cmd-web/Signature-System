@@ -1327,21 +1327,21 @@ export default function App() {
 
       {/* Mobile Top Navigation */}
       <div className="flex md:hidden flex-col bg-slate-950 text-slate-100 px-4 py-2.5 border-b border-slate-800 sticky top-0 z-40">
-        <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center justify-between mb-3.5">
           {/* Menu Drawer Toggle Button */}
           <button
             onClick={() => setMobileSidebarOpen(true)}
-            className="p-1.5 -ml-1 text-slate-300 hover:text-white hover:bg-slate-900 rounded-md transition-all flex items-center gap-1 cursor-pointer"
+            className="p-2 -ml-1 text-slate-300 hover:text-white hover:bg-slate-900 rounded-md transition-all flex items-center gap-1.5 cursor-pointer"
             title={t.openSidebar}
             id="sidebar-mobile-open-btn"
           >
             <Menu className="h-5 w-5 shrink-0" />
-            <span className="text-[10px] uppercase font-bold tracking-wider">{t.openSidebar}</span>
+            <span className="text-xs uppercase font-extrabold tracking-wider">{t.openSidebar}</span>
           </button>
 
-          <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 bg-primary rounded flex items-center justify-center font-bold text-white text-[11px]">SL</div>
-            <span className="text-xs font-bold tracking-tight">SignLog<span className="text-primary text-[9px] ml-0.5 font-black uppercase tracking-widest">PRO</span></span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-primary rounded flex items-center justify-center font-extrabold text-white text-xs">SL</div>
+            <span className="text-sm font-extrabold tracking-tight">SignLog<span className="text-primary text-[10px] ml-0.5 font-black uppercase tracking-widest">PRO</span></span>
           </div>
           
           <button
@@ -1350,18 +1350,18 @@ export default function App() {
               setCurrentUserRole(next);
               showToast(`Switched Context: ${next === "admin" ? "Administrator" : "Regular User"}`);
             }}
-            className="text-[9px] bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-2 py-1 rounded flex items-center gap-1"
+            className="text-xs bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-2.5 py-1 rounded flex items-center gap-1.5 font-bold"
           >
-            <Shield className={`h-3 w-3 ${currentUserRole === "admin" ? "text-emerald-400 animate-pulse" : "text-amber-400"}`} />
+            <Shield className={`h-3.5 w-3.5 ${currentUserRole === "admin" ? "text-emerald-400 animate-pulse" : "text-amber-400"}`} />
             <span>{currentUserRole === "admin" ? "Admin" : "User"}</span>
           </button>
         </div>
 
         {/* Horizontal scroll tabs for mobile */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => handleSidebarClick("dashboard")}
-            className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+            className={`px-4 py-2 rounded text-xs font-bold shrink-0 uppercase tracking-wider transition-colors ${
               sidebarActiveItem === "dashboard" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
             }`}
           >
@@ -1369,7 +1369,7 @@ export default function App() {
           </button>
           <button
             onClick={() => handleSidebarClick("add")}
-            className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+            className={`px-4 py-2 rounded text-xs font-bold shrink-0 uppercase tracking-wider transition-colors ${
               sidebarActiveItem === "add" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
             }`}
           >
@@ -1377,7 +1377,7 @@ export default function App() {
           </button>
           <button
             onClick={() => handleSidebarClick("reports")}
-            className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+            className={`px-4 py-2 rounded text-xs font-bold shrink-0 uppercase tracking-wider transition-colors ${
               sidebarActiveItem === "reports" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
             }`}
           >
@@ -1386,7 +1386,7 @@ export default function App() {
           {currentUserRole === "admin" && (
             <button
               onClick={() => handleSidebarClick("data")}
-              className={`px-3 py-1.5 rounded text-[10px] font-bold shrink-0 uppercase tracking-wider transition-colors ${
+              className={`px-4 py-2 rounded text-xs font-bold shrink-0 uppercase tracking-wider transition-colors ${
                 sidebarActiveItem === "data" ? "bg-primary text-white font-black" : "bg-slate-900 border border-slate-800 text-slate-400"
               }`}
             >
@@ -1585,11 +1585,11 @@ export default function App() {
             <div className="glass-panel rounded-2xl p-6 space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-1.5">
-                    <span className="w-1.5 h-3 bg-primary rounded-full shrink-0" />
+                  <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-1.5 h-3.5 bg-primary rounded-full shrink-0" />
                     Search & Operations Console
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                     Find specific signature records or instantly export reports in JSON/CSV formats
                   </p>
                 </div>
@@ -1598,7 +1598,7 @@ export default function App() {
                   {/* Export JSON Button */}
                   <button
                     onClick={handleExportBackup}
-                    className="flex-1 md:flex-none px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
+                    className="flex-1 md:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
                     title="Export all records to JSON backup format"
                     id="dashboard-export-json"
                   >
@@ -1609,7 +1609,7 @@ export default function App() {
                   {/* Export CSV Button */}
                   <button
                     onClick={() => handleExportCSV()}
-                    className="flex-1 md:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
+                    className="flex-1 md:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all duration-150"
                     title="Export filtered records to standard CSV sheet"
                     id="dashboard-export-csv"
                   >
@@ -1627,14 +1627,14 @@ export default function App() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search documents by title, employee name, document number, storage location, or remarks..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg text-foreground text-xs focus:outline-none glass-input placeholder:text-muted-foreground/60 shadow-xs"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg text-foreground text-sm focus:outline-none glass-input placeholder:text-muted-foreground/60 shadow-xs"
                   id="search-input"
                 />
               </div>
 
               {/* Filters Info and Reset */}
               {searchQuery && (
-                <div className="flex justify-between items-center bg-accent/20 px-3.5 py-2 rounded-lg text-[11px] text-muted-foreground">
+                <div className="flex justify-between items-center bg-accent/20 px-3.5 py-2.5 rounded-lg text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
                     Active Search. Found <strong className="text-foreground">{filteredDocuments.length}</strong> matching records.
@@ -1651,16 +1651,16 @@ export default function App() {
 
             {/* Signed Reports Digital Ledger */}
             <main className="glass-panel rounded-2xl shadow-xs overflow-hidden">
-              <div className="px-5 py-4 border-b border-border/60 bg-accent/5 flex items-center justify-between">
+              <div className="px-5 py-4.5 border-b border-border/60 bg-accent/5 flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wider">
                     Signed Documents Report Ledger
                   </h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Live digital ledger tracking certified signature transactions
                   </p>
                 </div>
-                <div className="text-[11px] font-medium text-muted-foreground bg-accent/20 px-2.5 py-1 rounded-md">
+                <div className="text-xs font-bold text-muted-foreground bg-accent/20 px-3 py-1 rounded-md">
                   Showing {filteredDocuments.length} of {documents.length} records
                 </div>
               </div>
@@ -1682,42 +1682,42 @@ export default function App() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse" id="dashboard-ledger-table">
                     <thead>
-                      <tr className="border-b border-border bg-accent/10 text-muted-foreground text-[10px] uppercase font-bold tracking-wider">
-                        <th className="px-5 py-3">Doc ID</th>
-                        <th className="px-5 py-3">Document Name</th>
-                        <th className="px-5 py-3">Date</th>
-                        <th className="px-5 py-3">Category</th>
-                        <th className="px-5 py-3">Department</th>
-                        <th className="px-5 py-3">Status</th>
-                        <th className="px-5 py-3">Storage Location</th>
-                        <th className="px-5 py-3 text-right">Actions</th>
+                      <tr className="border-b border-border bg-accent/10 text-muted-foreground text-xs uppercase font-extrabold tracking-wider">
+                        <th className="px-5 py-3.5">Doc ID</th>
+                        <th className="px-5 py-3.5">Document Name</th>
+                        <th className="px-5 py-3.5">Date</th>
+                        <th className="px-5 py-3.5">Category</th>
+                        <th className="px-5 py-3.5">Department</th>
+                        <th className="px-5 py-3.5">Status</th>
+                        <th className="px-5 py-3.5">Storage Location</th>
+                        <th className="px-5 py-3.5 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border/50 text-xs">
+                    <tbody className="divide-y divide-border/50 text-sm">
                       {filteredDocuments.map((doc, idx) => (
                         <tr 
                           key={doc.id}
                           className="hover:bg-accent/10 transition-colors group"
                         >
-                          <td className="px-5 py-3.5 font-mono text-[10px] font-bold text-muted-foreground">
+                          <td className="px-5 py-4 font-mono text-xs font-bold text-muted-foreground">
                             {doc.id}
                           </td>
-                          <td className="px-5 py-3.5 font-semibold text-foreground">
+                          <td className="px-5 py-4 font-bold text-foreground">
                             {doc.documentName}
                           </td>
-                          <td className="px-5 py-3.5 text-muted-foreground whitespace-nowrap">
+                          <td className="px-5 py-4 text-muted-foreground whitespace-nowrap">
                             {doc.recordDate}
                           </td>
-                          <td className="px-5 py-3.5 whitespace-nowrap">
-                            <span className="px-2 py-1 bg-accent text-accent-foreground rounded text-[10px] font-medium">
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="px-2.5 py-1 bg-accent text-accent-foreground rounded text-xs font-bold">
                               {doc.category}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 text-muted-foreground whitespace-nowrap">
+                          <td className="px-5 py-4 text-muted-foreground whitespace-nowrap">
                             {doc.department}
                           </td>
-                          <td className="px-5 py-3.5 whitespace-nowrap">
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold ${
                               doc.status === "Signed & Completed" 
                                 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
                                 : doc.status === "Pending Review"
@@ -1734,10 +1734,10 @@ export default function App() {
                               {doc.status}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 text-muted-foreground">
+                          <td className="px-5 py-4 text-muted-foreground">
                             {doc.storageLocation}
                           </td>
-                          <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                          <td className="px-5 py-4 text-right whitespace-nowrap">
                             <div className="flex justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => handleTriggerView(doc)}

@@ -60,13 +60,15 @@
     font-family: var(--font-sans);
     background-color: var(--background);
     color: var(--foreground);
+    font-size: 15px;
+    line-height: 1.6;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
 /* Custom layout / utility helpers matching High Density spec */
 .micro-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: #94A3B8;
   text-transform: uppercase;
@@ -160,7 +162,7 @@
 }
 
 .stat-val {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #1E293B;
   line-height: 1;
@@ -171,9 +173,9 @@
 }
 
 .status-pill {
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
